@@ -39,8 +39,12 @@ export default class App extends Component<Props> {
         console.log(this.state.stream ? this.state.stream .toURL() : "NULL");
         return (
             <View style={{flex:1,flexDirection:'column'}}>
-                <RTCView style={{flex:1,flexDirection:'row'}} streamURL={this.state.stream ? this.state.stream.toURL() : null}>
-                </RTCView>
+                <View style={{flex:1,flexDirection:'row',backgroundColor:"#006600"}}>
+                </View>
+                <View style={{paddingBottom:10,position:'absolute',flex:1,width:'100%',height:'100%',flexDirection:'row',justifyContent:'flex-end',alignItems:'flex-end'}}>
+                    <RTCView style={{width:200,height:200}} streamURL={this.state.stream ? this.state.stream.toURL() : null}>
+                    </RTCView>
+                </View>
             </View>
         );
     }
