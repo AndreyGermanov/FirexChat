@@ -9,6 +9,15 @@
 
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
+import {
+    RTCPeerConnection,
+    RTCIceCandidate,
+    RTCSessionDescription,
+    RTCView,
+    MediaStream,
+    MediaStreamTrack,
+    mediaDevices
+} from 'react-native-webrtc';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -19,32 +28,57 @@ const instructions = Platform.select({
 
 type Props = {};
 export default class App extends Component<Props> {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </View>
-    );
-  }
+
+    constructor(props) {
+        super(props)
+        this.state = {stream:null}
+    }
+
+    render() {
+        console.log("RERENDER");
+        console.log(this.state.stream ? this.state.stream .toURL() : "NULL");
+        return (
+            <View style={{flex:1,flexDirection:'column'}}>
+                <RTCView style={{flex:1,flexDirection:'row'}} streamURL={this.state.stream ? this.state.stream.toURL() : null}>
+                </RTCView>
+            </View>
+        );
+    }
+
+    componentDidMount() {
+        const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+        const pc = new RTCPeerConnection(configuration);
+
+        let isFront = true;
+        mediaDevices.enumerateDevices().then(sourceInfos => {
+            console.log(sourceInfos);
+            let videoSourceId;
+            for (let i = 0; i < sourceInfos.length; i++) {
+                const sourceInfo = sourceInfos[i];
+                if(sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
+                    videoSourceId = sourceInfo.id;
+                }
+            }
+            mediaDevices.getUserMedia({
+                audio: true,
+                video: {
+                    mandatory: {
+                        minWidth: 500, // Provide your own width, height and frame rate here
+                        minHeight: 300,
+                        minFrameRate: 30
+                    },
+                    facingMode: (isFront ? "user" : "environment"),
+                    optional: (videoSourceId ? [{sourceId: videoSourceId}] : [])
+                }
+            })
+                .then(stream => {
+                    console.log("GOT STREAM");
+                    this.setState({stream:stream});
+                })
+                .catch(error => {
+                    // Log error
+                });
+        });
+    }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
