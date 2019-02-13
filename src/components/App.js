@@ -1,12 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- * @lint-ignore-every XPLATJSCOPYRIGHT1
- */
-
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import {
@@ -18,6 +9,7 @@ import {
     MediaStreamTrack,
     mediaDevices
 } from 'react-native-webrtc';
+import Store from '../store/Store';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -35,14 +27,12 @@ export default class App extends Component<Props> {
     }
 
     render() {
-        console.log("RERENDER");
-        console.log(this.state.stream ? this.state.stream .toURL() : "NULL");
         return (
             <View style={{flex:1,flexDirection:'column'}}>
                 <View style={{flex:1,flexDirection:'row',backgroundColor:"#006600"}}>
                 </View>
                 <View style={{paddingBottom:10,position:'absolute',flex:1,width:'100%',height:'100%',flexDirection:'row',justifyContent:'flex-end',alignItems:'flex-end'}}>
-                    <RTCView style={{width:200,height:200}} streamURL={this.state.stream ? this.state.stream.toURL() : null}>
+                    <RTCView style={{width:200,height:200}} streamURL={this.props.stream ? this.props.stream.toURL() : null}>
                     </RTCView>
                 </View>
             </View>
@@ -55,7 +45,6 @@ export default class App extends Component<Props> {
 
         let isFront = true;
         mediaDevices.enumerateDevices().then(sourceInfos => {
-            console.log(sourceInfos);
             let videoSourceId;
             for (let i = 0; i < sourceInfos.length; i++) {
                 const sourceInfo = sourceInfos[i];
@@ -76,8 +65,7 @@ export default class App extends Component<Props> {
                 }
             })
                 .then(stream => {
-                    console.log("GOT STREAM");
-                    this.setState({stream:stream});
+                    Store.changeProperty("localStream",stream);
                 })
                 .catch(error => {
                     // Log error
