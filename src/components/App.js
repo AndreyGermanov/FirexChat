@@ -76,7 +76,7 @@ export default class App extends Component<Props> {
 
         firebase.auth().signInWithEmailAndPassword("andrey@it-port.ru","111111").then(() => {
             console.log(firebase.auth().currentUser)
-        })
+        }).catch((e)=> { alert(e.message); });
 
     }
 }
