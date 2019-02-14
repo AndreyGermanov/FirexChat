@@ -10,6 +10,8 @@ import {
     mediaDevices
 } from 'react-native-webrtc';
 import Store from '../store/Store';
+import firebase from 'react-native-firebase';
+
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -71,6 +73,11 @@ export default class App extends Component<Props> {
                     // Log error
                 });
         });
+
+        firebase.auth().signInWithEmailAndPassword("andrey@it-port.ru","111111").then(() => {
+            console.log(firebase.auth().currentUser)
+        })
+
     }
 }
 
