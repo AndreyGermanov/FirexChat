@@ -20,7 +20,7 @@ export default class AppContainer {
 
     mapStateToProps(state) {
         return {
-            stream: state.localStream
+            activeScreen: state.activeScreen
         }
     }
 

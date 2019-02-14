@@ -3,10 +3,21 @@ import Store from '../store/Store';
 import _ from 'lodash';
 import React from 'react';
 
+
+export const Screens = {
+    LOADING: 'SCREENS_LOADING',
+    LOGIN: 'SCREENS_LOGIN',
+    REGISTER: 'SCREENS_REGISTER',
+    PROFILE: 'SCREENS_PROFILE',
+    USERS_LIST: 'SCREENS_USERS_LIST',
+    VIDEO_CHAT: 'SCREENS_VIDEO_CHAT'
+};
+
 /**
  * Global application state
  */
 export const initialState = {
+    activeScreen: Screens.VIDEO_CHAT,
     localStream: null
 };
 

@@ -153,7 +153,6 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-firebase')
     implementation project(':react-native-webrtc')
     implementation project(path: ':react-native-firebase', configuration: 'default')
     implementation fileTree(dir: "libs", include: ["*.jar"])
