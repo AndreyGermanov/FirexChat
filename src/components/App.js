@@ -73,10 +73,9 @@ export default class App extends Component<Props> {
                     // Log error
                 });
         });
-
-        firebase.auth().signInWithEmailAndPassword("andrey@it-port.ru","111111").then(() => {
-            console.log(firebase.auth().currentUser)
-        }).catch((e)=> { alert(e.message); });
+       firebase.auth().signInWithEmailAndPassword("andrey@it-port.ru","111111").then(() => {       
+    console.log(firebase.auth().currentUser.email)
+        }).catch((e)=> { console.log(e.message); });
 
     }
 }
