@@ -17,8 +17,28 @@ export const Screens = {
  * Global application state
  */
 export const initialState = {
-    activeScreen: Screens.VIDEO_CHAT,
-    localStream: null
+    activeScreen: Screens.LOADING,
+    localStream: null,
+    isLogin: false,
+    login: {
+        name: "",
+        password: "",
+        errors: {}
+    },
+    register: {
+        name: "",
+        password: "",
+        confirmPassword: "",
+        errors: {}
+    },
+    users: {
+        updatesCounter:0
+    },
+    chat: {
+        localStream: null,
+        remoteStream: null,
+        updatesCounter:0
+    }
 };
 
 /**

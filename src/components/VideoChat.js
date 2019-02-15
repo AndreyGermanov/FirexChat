@@ -1,17 +1,7 @@
 import React, {Component} from 'react';
 
 import {View} from 'react-native';
-import {
-    RTCPeerConnection,
-    RTCIceCandidate,
-    RTCSessionDescription,
-    RTCView,
-    MediaStream,
-    MediaStreamTrack,
-    mediaDevices
-} from 'react-native-webrtc';
-
-import Store from '../store/Store';
+import {RTCView} from 'react-native-webrtc';
 
 export default class VideoChat extends Component {
 
@@ -29,35 +19,6 @@ export default class VideoChat extends Component {
     }
 
     componentDidMount() {
-        const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-        const pc = new RTCPeerConnection(configuration);
-        let isFront = true;
-        mediaDevices.enumerateDevices().then(sourceInfos => {
-            let videoSourceId;
-            for (let i = 0; i < sourceInfos.length; i++) {
-                const sourceInfo = sourceInfos[i];
-                if(sourceInfo.kind == "video" && sourceInfo.facing == (isFront ? "front" : "back")) {
-                    videoSourceId = sourceInfo.id;
-                }
-            }
-            mediaDevices.getUserMedia({
-                audio: true,
-                video: {
-                    mandatory: {
-                        minWidth: 500,
-                        minHeight: 300,
-                        minFrameRate: 30
-                    },
-                    facingMode: (isFront ? "user" : "environment"),
-                    optional: (videoSourceId ? [{sourceId: videoSourceId}] : [])
-                }
-            })
-            .then(stream => {
-                Store.changeProperty("localStream",stream);
-            })
-            .catch(error => {
-                // Log error
-            });
-        });
+        this.props.openLocalCamera();
     }
 }

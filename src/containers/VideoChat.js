@@ -1,5 +1,6 @@
 import VideoChatComponent from '../components/VideoChat';
 import {connect} from 'react-redux';
+import VideoChat from '../services/VideoChat'
 
 export default class VideoChatContainer {
 
@@ -21,13 +22,17 @@ export default class VideoChatContainer {
 
     mapStateToProps(state) {
         return {
-            stream: state.localStream
+            stream: state.chat.localStream
         }
     }
 
     mapDispatchToProps(dispatch) {
         return {
-
+            openLocalCamera: () => this.openLocalCamera()
         }
+    }
+
+    openLocalCamera() {
+        VideoChat.openLocalCamera();
     }
 }

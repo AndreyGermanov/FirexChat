@@ -1,5 +1,8 @@
 import AppComponent from '../components/App';
 import {connect} from 'react-redux';
+import Backend from '../services/Backend';
+import Sessions from '../models/Sessions';
+
 export default class AppContainer {
 
     /**
@@ -25,6 +28,13 @@ export default class AppContainer {
     }
 
     mapDispatchToProps(dispatch) {
-        return {}
+        return {
+            start: () => this.start()
+        }
+    }
+
+    start() {
+        Backend.auth.init();
+        Sessions.init();
     }
 }

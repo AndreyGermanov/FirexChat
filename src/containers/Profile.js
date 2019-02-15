@@ -1,5 +1,6 @@
 import ProfileComponent from '../components/Profile';
 import {connect} from 'react-redux';
+import Backend from '../services/Backend';
 
 export default class ProfileContainer {
 
@@ -27,7 +28,11 @@ export default class ProfileContainer {
 
     mapDispatchToProps(dispatch) {
         return {
-
+            logout: () => this.logout()
         }
+    }
+
+    logout() {
+        Backend.auth.logout();
     }
 }
