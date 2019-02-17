@@ -22,17 +22,24 @@ export default class VideoChatContainer {
 
     mapStateToProps(state) {
         return {
-            stream: state.chat.localStream
+            stream: state.chat.localStream,
+            remoteStream: state.chat.remoteStream,
+            mode: state.chat.mode
         }
     }
 
     mapDispatchToProps(dispatch) {
         return {
-            openLocalCamera: () => this.openLocalCamera()
+            openLocalCamera: () => this.openLocalCamera(),
+            hangup: () => this.hangup()
         }
     }
 
     openLocalCamera() {
         VideoChat.openLocalCamera();
+    }
+
+    hangup() {
+        VideoChat.hangup();
     }
 }

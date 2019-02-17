@@ -32,7 +32,7 @@ export default class App extends Component {
             case Screens.REGISTER: { screen = <Register/>; break; }
             case Screens.PROFILE: { screen = this.wrapScreen(<Profile/>); break; }
             case Screens.USERS_LIST: { screen = this.wrapScreen(<UsersList/>); break; }
-            case Screens.VIDEO_CHAT: { screen = this.wrapScreen(<VideoChat/>); break; }
+            case Screens.VIDEO_CHAT: { screen = <VideoChat/>; break; }
         }
 
         return screen;

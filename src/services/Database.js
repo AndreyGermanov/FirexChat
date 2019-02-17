@@ -19,12 +19,14 @@ class Database {
     }
 
     updateUserSession(email,updatedAt) {
+        /*
         firebase.firestore().collection("sessions").doc(email).set({
             username: email,
             updatedAt: updatedAt
         },{}).catch((error) => {
             console.error(error);
         })
+        */
     }
 
     getList(collection,condition=null,callback) {
@@ -43,19 +45,7 @@ class Database {
             callback(err.message);
         })
     }
-
-    subscribe(subscriber,collection,condition=null) {
-        if (!this.subsribers[collection]) {
-            this.subsribers[collection] = [];
-        }
-        if (this.subsribers[collection].indexOf(subscriber) === -1) {
-            this.subsribers[collection].push(subscriber);
-        }
-        if (!this.collectionListeners[collection]) {
-            this.addCollectionListener(collection,condition);
-        }
-    }
-
+    
     addCollectionListener(collection,condition=null) {
         let query = this.getQuery(collection,condition);
         query.onSnapshot((snapshot) => {
@@ -69,15 +59,6 @@ class Database {
                 }
             })
         })
-    }
-
-    unsubscribe(subscriber,collection) {
-        if (!this.subsribers[collection]) {
-            this.subsribers[collection] = [];
-        }
-        if (this.subsribers[collection].indexOf(subscriber) !== -1) {
-            this.subsribers[collection].splice(this.subsribers[collection].indexOf(subscriber),1);
-        }
     }
 
     getQuery(collection,condition) {
@@ -99,9 +80,37 @@ class Database {
     }
 
     deleteItem(collection,id,callback) {
-        firebase.firestore().collection(collection).delete()
-        .then(() => callback()).catch((error) => callback(error.message));
+        firebase.firestore().collection(collection).doc(id).delete()
+        .then(() => {
+            console.log("REMOVED SUCCESSFULLY "+id);
+            callback()
+        }).catch((error) => {
+            console.log("ERROR "+error.message);
+            callback(error.message);
+        });
     }
-};
+
+    subscribe(subscriber,collection,condition=null) {
+        if (!this.subsribers[collection]) {
+            this.subsribers[collection] = [];
+        }
+        if (this.subsribers[collection].indexOf(subscriber) === -1) {
+            this.subsribers[collection].push(subscriber);
+        }
+        if (!this.collectionListeners[collection]) {
+            this.addCollectionListener(collection,condition);
+        }
+    }
+
+    unsubscribe(subscriber,collection) {
+        if (!this.subsribers[collection]) {
+            this.subsribers[collection] = [];
+        }
+        if (this.subsribers[collection].indexOf(subscriber) !== -1) {
+            this.subsribers[collection].splice(this.subsribers[collection].indexOf(subscriber),1);
+        }
+    }
+
+}
 
 export default Database.getInstance();

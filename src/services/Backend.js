@@ -17,8 +17,14 @@ class Backend {
 
     constructor() {
         this.db = Database;
-        this.videoChat = VideoChat;
         this.auth = Auth;
+        this.videoChat = VideoChat;
+        console.log("BACKED IS CONSTRUCTED");
+    }
+
+    init() {
+       Auth.init();
+       VideoChat.init();
     }
 };
 

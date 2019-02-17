@@ -13,6 +13,11 @@ export const Screens = {
     VIDEO_CHAT: 'SCREENS_VIDEO_CHAT'
 };
 
+export const ChatMode = {
+    CALLING: 'CHAT_MODE_CALLING',
+    TALKING: 'CHAT_MODE_TALKING'
+}
+
 /**
  * Global application state
  */
@@ -37,7 +42,8 @@ export const initialState = {
     chat: {
         localStream: null,
         remoteStream: null,
-        updatesCounter:0
+        updatesCounter:0,
+        mode: null
     }
 };
 
@@ -64,6 +70,7 @@ export default function rootReducer(state=initialState,action) {
 
 const changeProperty = function(name,value,newState) {
     var clonedValue = _.cloneDeep(value);
+    console.log(clonedValue);
     if (!clonedValue || !Object.getOwnPropertyNames(clonedValue).length) clonedValue = value;
     eval("newState"+Store.getPropertyNameExpression(name)+ " = clonedValue;");
     return newState

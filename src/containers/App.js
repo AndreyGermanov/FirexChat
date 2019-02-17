@@ -34,7 +34,7 @@ export default class AppContainer {
     }
 
     start() {
-        Backend.auth.init();
+        Backend.init();
         Sessions.init();
     }
 }

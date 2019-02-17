@@ -15,13 +15,24 @@ class Sessions {
     }
 
     init() {
-        this.list = [];
-        Backend.db.subscribe(this,'sessions');
+        this.list = [
+            {id:'test@test.com'},
+            {id:'test2@test.com'}
+        ];
         Backend.auth.subscribe(this);
+        Backend.db.subscribe(this,'sessions');
     }
 
     loadList(callback) {
+        this.list = [
+            {id:'test@test.com'},
+            {id:'test2@test.com'}
+        ]
+        callback();
+        return;
+        console.log("LOADING LIST");
         Backend.db.getList('sessions',null, (err,rows) => {
+            console.log("GOT LIST");
             if (!err) {
                 this.list = rows;
             }
@@ -34,7 +45,10 @@ class Sessions {
         if (collection === 'sessions' && change.type !== 'modified') {
             switch (change.type) {
                 case "added" : {
-                    this.list.push(change.data);
+                    console.log("PROCESSING");
+                    console.log(change);
+                    if (this.list.findIndex((item) => item.id === change.data.id) === -1 )
+                        this.list.push(change.data);
                     break;
                 }
                 case "removed": {

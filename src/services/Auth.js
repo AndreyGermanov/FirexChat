@@ -2,10 +2,12 @@ import firebase from 'react-native-firebase';
 import async from 'async';
 import Store from '../store/Store';
 import {Screens} from "../reducers/RootReducer";
+import Service from './Service';
 import Backend from './Backend';
 
 import t from '../utils/translate'
-class Auth {
+
+class Auth extends Service {
 
     /**
      * Returns single instance of this service
@@ -19,7 +21,6 @@ class Auth {
     }
 
     init() {
-        this.subsribers = [];
         firebase.auth().onAuthStateChanged((user) => {
             this.checkLogin(user)
         });
@@ -44,17 +45,17 @@ class Auth {
 
     applyLogin() {
         if (this.updateActivityTimer == null) {
+            /*
             this.updateActivityTimer = setInterval(
                 () => Backend.db.updateUserSession(this.user().email, Date()),
                 5000);
+                */
         }
         Store.changeProperties({
             isLogin: true,
             activeScreen: Screens.USERS_LIST
         })
-        this.subsribers.forEach((subscriber)=> {
-            subscriber.onAuthChange(true)
-        })
+        this.triggerEvent("onAuthChange",[true]);
     }
 
     applyLogout() {
@@ -64,9 +65,7 @@ class Auth {
             isLogin: false,
             activeScreen: Screens.LOGIN
         })
-        this.subsribers.forEach((subscriber)=> {
-            subscriber.onAuthChange(false)
-        })
+        this.triggerEvent("onAuthChange",[false]);
     }
 
     login(email,password,callback) {
@@ -157,19 +156,6 @@ class Auth {
             callback(error.message)
         })
     }
-
-    subscribe(subscriber) {
-        if (this.subsribers.indexOf(subscriber) === -1) {
-            this.subsribers.push(subscriber);
-        }
-    }
-
-    unsubscribe(subscriber) {
-        if (this.subsribers.indexOf(subscriber) !== -1) {
-            this.subsribers.splice(this.subsribers.indexOf(subscriber),1);
-        }
-    }
-
 }
 
 export default Auth.getInstance();
