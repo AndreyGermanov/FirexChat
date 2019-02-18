@@ -32,7 +32,35 @@ class VideoChat {
         Signalling.init();
     }
 
-    call(userId,callback=()=>{}) {
+    call(userId) {
+        let state = Store.getState();
+        this.peerUser = userId;
+        console.log("CALLING "+this.peerUser);
+        Store.changeProperties({
+            "activeScreen":Screens.VIDEO_CHAT,
+            "chat.updatesCounter": state.chat.updatesCounter+1,
+            "chat.mode": ChatMode.CALLING
+        });
+        Signalling.sendCallRequest(userId);
+    }
+
+    rejectCall(userId) {
+        delete this.incomingCalls[userId];
+
+        let state = Store.getState();
+        Store.changeProperties({
+            "activeScreen":Screens.USERS_LIST,
+            "users.updatesCounter": state.users.updatesCounter+1
+        });
+        Signalling.sendCallResponse(userId,false);
+    }
+
+    acceptCall(userId) {
+        this.peerUser = userId;
+        Signalling.sendCallResponse(userId,true);
+    }
+
+    sendOffer(userId,callback=()=>{}) {
         let state = Store.getState();
         console.log("CREATING OFFER");
         this.setupConnection(() => {
@@ -49,15 +77,17 @@ class VideoChat {
                             "activeScreen":Screens.VIDEO_CHAT,
                             "chat.mode": ChatMode.CALLING
                         });
-                        console.log("WATCHING CALL");
+                        //console.log("WATCHING CALL");
+                        /*
                         if (!this.callWatcherInterval)
                             this.callWatcherInterval = setInterval(() => { console.log("ABOUT TO WATCH CALL");this.watchCall()},20000);
+                            */
                     })
                 })
             })
         });
     }
-
+/*
     watchCall() {
         console.log("WATCHING");
         let state = Store.getState();
@@ -78,17 +108,21 @@ class VideoChat {
             clearInterval(this.callWatcherInterval);
         }
     }
-
+*/
     hangup() {
         let state = Store.getState();
         if (this.connection) this.connection.close();
-        if (state.chat.mode === ChatMode.CALLING) {
+        if (state.chat.mode === ChatMode.TALKING) {
             console.log("REJECTING OFFER");
             Signalling.sendOffer(this.peerUser,{},'reject',()=>{})
+        } else {
+            console.log("REJECTING CALL");
+            Signalling.sendCallResponse(this.peerUser,false);
         }
         this.sessionOpened = false;
         delete this.incomingCalls[this.peerUser];
         this.peerUser = "";
+        console.log("ERASE peerUser");
         this.iceCandidates = [];
         if (this.callWatcherInterval) clearInterval(this.callWatcherInterval);
         this.callWatcherInterval = null;
@@ -96,7 +130,9 @@ class VideoChat {
             "activeScreen": Screens.USERS_LIST,
             "chat.updatesCounter": state.chat.updatesCounter+1,
             "users.updatesCounter": state.users.updatesCounter+1,
-            "chat.mode": null
+            "chat.mode": null,
+            "chat.remoteStream": null,
+            "chat.localStream": null
         })
     }
 
@@ -135,6 +171,12 @@ class VideoChat {
 
     openLocalCamera(callback=()=>{}) {
         let isFront = true;
+        let state = Store.getState();
+        if (state.chat.localStream !== null) {
+            this.connection.addStream(state.chat.localStream);
+            callback();
+            return;
+        }
         mediaDevices.enumerateDevices().then(sourceInfos => {
             let videoSourceId;
             for (let i = 0; i < sourceInfos.length; i++) {
@@ -179,11 +221,14 @@ class VideoChat {
         //console.log(this.connection);
         this.openLocalCamera(() => {
             this.connection.onicecandidate = event => {
-                if (this.sessionOpened && this.peerUser) {
+                //if (this.sessionOpened && this.peerUser) {
                     console.log("RECEIVED ICE CANDIDATE");
+                    console.log(event.candidate);
+                    if (!event.candidate) return;
+                    console.log(event.candidate.type);
                     Signalling.sendIceCandidate(this.peerUser,event.candidate,() => {})
                     this.iceCandidates.push(event.candidate);
-                }
+               // }
             };
             this.connection.onaddstream = event => {
                 //if (this.sessionOpened && this.peerUser) {
@@ -214,18 +259,56 @@ class VideoChat {
         console.log("PROCESSING SIGNAL "+event.type);
         console.log(data);
         switch (event.type) {
+            case "call":
+                this.incomingCalls[data.from] = data;
+                console.log(this.incomingCalls);
+                Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
+                break;
+            case "call_response":
+                if (data.answer === "reject") {
+                    delete this.incomingCalls[data.from];
+                    if (data.from === this.peerUser) {
+                        Store.changeProperty("activeScreen", Screens.USERS_LIST);
+                    }
+                    Store.changeProperty("users.updatesCounter", state.users.updatesCounter + 1);
+                } else {
+                    this.sendOffer(data.from)
+                }
+                break;
             case "offer":
                 if (data.type === 'reject') {
                     console.log("RECEIVED OFFER REJECT");
                     this.incomingCalls[data.from] = null;
                     delete this.incomingCalls[data.from];
+                    this.hangup();
                     console.log(this.incomingCalls);
                 } else {
-                    if (!this.sessionOpened) {
-                        console.log("ADDED INCOMING CALL");
+                    console.log(this.peerUser+"-"+data.from);
+                    if (this.peerUser === data.from) {
+                        console.log("SESSION NOT OPENED")
                         this.incomingCalls[data.from] = data;
                         console.log(this.incomingCalls);
-                        Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
+                        if (!this.connection)
+                            console.log("RECEIVED OFFER ACCEPT");
+                        this.connection = new RTCPeerConnection(Config.connection);
+                        //this.iceCandidates = [];
+                        this.setupConnection(()=> {
+                            this.connection.setRemoteDescription(new RTCSessionDescription(data.sdp))
+                                .then(() => {
+                                    return this.connection.createAnswer()
+                                })
+                                .then((answer) => {
+                                    return this.connection.setLocalDescription(answer)
+                                }).then(() => {
+                                console.log("SENDING ANSWER");
+                                Signalling.sendAnswer(data.from,this.connection.localDescription,'accept');
+
+                                this.iceCandidates.forEach((candidate) => {
+                                    Signalling.sendIceCandidate(this.peerUser,candidate,() => {});
+                                })
+                                Store.changeProperty("activeScreen",Screens.VIDEO_CHAT);
+                            });
+                        })
                     }
                 }
                 break;
@@ -237,6 +320,7 @@ class VideoChat {
                             .then(() => {
                                 console.log("CHANGE CHAT MODE");
                                 Store.changeProperty('chat.mode',ChatMode.TALKING);
+                                this.iceCandidates.forEach((candidate) => Signalling.sendIceCandidate(this.peerUser,candidate));
                                // if (this.callWatcherInterval) clearInterval(this.callWatcherInterval);
                             })
                             .catch((err) => {
@@ -251,12 +335,12 @@ class VideoChat {
                 break;
             case "iceCandidate":
                 console.log("GOT ICE CANDIDATE");
-                if (data.from === this.peerUser) {
+               // if (data.from === this.peerUser) {
                     console.log("ADD ICE CANDIDATE")
                     this.connection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch((error) => {
                         console.log(error);
                     });
-                }
+               // }
         }
     }
 };

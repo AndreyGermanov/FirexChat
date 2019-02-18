@@ -33,12 +33,12 @@ export default class UsersList extends Component {
         } else {
              return(
             <View style={{flexDirection:'row',justifyContent:'flex-start'}}>
-                <TouchableOpacity onPress={() => this.props.answer(item.id,true)}>
+                <TouchableOpacity onPress={() => this.props.answer(item.id)}>
                     <Text>
                         {t("Answer")}
                     </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.props.answer(item.id,false)}>
+                <TouchableOpacity onPress={() => this.props.reject(item.id)}>
                     <Text>
                         {t("Reject")}
                     </Text>

@@ -37,7 +37,8 @@ export default class UsersListContainer {
         return {
             loadList: () => this.loadList(),
             call: (userId) => this.call(userId),
-            answer: (userId,answerType) => this.answer(userId,answerType)
+            answer: (userId) => this.answer(userId),
+            reject: (userId) => this.reject(userId)
         }
     }
 
@@ -49,12 +50,13 @@ export default class UsersListContainer {
     }
 
     call(userId) {
-        VideoChat.call(userId,()=> {
-            console.log("CALLED TO "+userId);
-        });
+        VideoChat.call(userId);
     }
 
-    answer(userId,answerType) {
-        VideoChat.answer(userId,answerType);
+    answer(userId) {
+        VideoChat.acceptCall(userId);
+    }
+    reject(userId) {
+        VideoChat.rejectCall(userId);
     }
 }
