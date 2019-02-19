@@ -5,8 +5,6 @@ import t from '../utils/translate';
 export default class UsersList extends Component {
 
     render() {
-        console.log("RERENDER USERLIST");
-        console.log(this.props.incomingCalls);
         return (
             <FlatList style={{flex:1,width:'100%',height:'100%'}} data={this.props.users} renderItem={({item}) => this.renderItem(item)}/>
         )
@@ -14,7 +12,7 @@ export default class UsersList extends Component {
 
     renderItem(item) {
         return (
-            <View style={{flex:1,flexDirection:'row',justifyContent:'flex-start'}}>
+            <View key={"user_"+item.id} style={{flex:1,flexDirection:'row',justifyContent:'flex-start'}}>
                 <Text>{item.id}</Text>
                 {this.renderItemButtons(item)}
             </View>

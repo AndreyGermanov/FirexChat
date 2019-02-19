@@ -18,17 +18,6 @@ class Database {
         this.collectionListeners = {};
     }
 
-    updateUserSession(email,updatedAt) {
-        /*
-        firebase.firestore().collection("sessions").doc(email).set({
-            username: email,
-            updatedAt: updatedAt
-        },{}).catch((error) => {
-            console.error(error);
-        })
-        */
-    }
-
     getList(collection,condition=null,callback) {
         let query = this.getQuery(collection,condition);
         query.get()
@@ -82,10 +71,8 @@ class Database {
     deleteItem(collection,id,callback) {
         firebase.firestore().collection(collection).doc(id).delete()
         .then(() => {
-            console.log("REMOVED SUCCESSFULLY "+id);
             callback()
         }).catch((error) => {
-            console.log("ERROR "+error.message);
             callback(error.message);
         });
     }
@@ -110,7 +97,6 @@ class Database {
             this.subsribers[collection].splice(this.subsribers[collection].indexOf(subscriber),1);
         }
     }
-
 }
 
 export default Database.getInstance();

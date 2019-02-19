@@ -1,6 +1,11 @@
 import Backend from './Backend'
 import Service from './Service';
+import WebSocketConfig from '../config/websocket';
 
+/**
+ * Service used as a client for WebRTC signalling server. Used by VideoChat module exchange
+ * WebRTC related information: offers, answers, ICE candidates and also to initiate and reject video calls
+ */
 class Signalling extends Service {
 
     /**
@@ -14,107 +19,83 @@ class Signalling extends Service {
         return Signalling.instance;
     }
 
-
     init() {
-        this.url = "wss:/portal.it-port.ru/firexchat";
+        this.user = null;
+        this.getMessagesInterval = null;
         this.connect();
         Backend.auth.subscribe(this);
     }
 
     connect() {
-        this.connection = new WebSocket(this.url);
+        this.connection = new WebSocket(WebSocketConfig.url);
+
+        this.connection.onopen = () => {
+            if (this.getMessagesInterval === null) {
+                this.getMessagesInterval = setInterval(() => {
+                    this.sendMessage({type:"get_messages",from:this.user})
+                }, 5000);
+            }
+        };
+
+        this.connection.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (typeof(message["type"]) !== "undefined" && message["type"] !== null) {
+                this.triggerEvent("onSignal",[{type:message.type,data:message}]);
+            }
+        };
+
+        this.connection.onclose = () => {
+            if (this.getMessagesInterval !== null) {
+                clearInterval(this.getMessagesInterval);
+                this.getMessagesInterval = null;
+            }
+            this.connect();
+        };
     }
 
     onAuthChange(isLogin) {
         if (isLogin) {
-            const username = Backend.auth.user().email;
+            this.user = Backend.auth.user().email;
             this.connect();
-            console.log("CONNECTION CREATED");
-            this.connection.onopen = () => {
-
-            }
-            this.connection.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                if (message.type === "video_offer") {
-                    this.triggerEvent("onSignal",[{type:'offer',data:{from:message.from,to:message.to,sdp:message.sdp,type:message.answer_type}}]);
-                }
-                if (message.type === "video_answer") {
-                    this.triggerEvent("onSignal",[{type:'answer',data:{from:message.from,to:message.to,sdp:message.sdp,type:message.answer_type}}]);
-                }
-                if (message.type === "new_ice_candidate") {
-                    console.log("NEW ICE CANDIATE");
-                    this.triggerEvent("onSignal",[{type:'iceCandidate',data:{from:message.from,to:message.to,candidate:message.candidate}}]);
-                }
-                if (message.type === "call") {
-                    console.log("NEW CALL");
-                    this.triggerEvent("onSignal",[{type:'call',data:message}]);
-                }
-                if (message.type === "call_response") {
-                    console.log("NEW CALL RESPONSE");
-                    this.triggerEvent("onSignal",[{type:'call_response',data:message}]);
-                }
-            }
-            this.getMessagesInterval = setInterval(() => { this.connection.send(JSON.stringify({
-                type: "get_messages",
-                from: username
-            }))},5000);
         } else {
             clearInterval(this.getMessagesInterval);
+            this.getMessagesInterval = null;
             this.connection.close();
         }
     }
 
     sendCallRequest(userId) {
-        this.connection.send(JSON.stringify({
-            type: "call",
-            from: Backend.auth.user().email,
-            to: userId
-        }))
+        const message = {type:'call',from:this.user,to:userId};
+        this.sendMessage(message);
     }
 
     sendCallResponse(userId,responseType) {
-        this.connection.send(JSON.stringify({
-            type: "call_response",
-            from: Backend.auth.user().email,
-            to: userId,
-            answer: responseType ? 'accept' : 'reject'
-        }))
+        const message = {type:'call_response',from:this.user,to:userId,answer:responseType ? 'accept' : 'reject'};
+        this.sendMessage(message);
     }
 
     sendOffer(userId,sdp,answer_type,callback=()=>{}) {
-        this.connection.send(JSON.stringify({
-            type: "video_offer",
-            from: Backend.auth.user().email,
-            to: userId,
-            sdp: sdp,
-            answer_type: answer_type
-        }))
-        callback();
+        const message = {type:'video_offer',from:this.user,to:userId,sdp:sdp,answer_type:answer_type};
+        this.sendMessage(message);
     }
 
     sendAnswer(userId,sdp,answer_type,callback=()=>{}) {
-        this.connection.send(JSON.stringify({
-            type: "video_answer",
-            from: Backend.auth.user().email,
-            to: userId,
-            sdp: sdp,
-            answer_type: answer_type
-        }))
-        callback();
+        const message = {type:"video_answer",from:this.user,to:userId,sdp:sdp,answer_type:answer_type};
+        this.sendMessage(message);
     }
-
 
     sendIceCandidate(userId,candidate,callback=()=>{}) {
-        if (candidate == null) { callback();return;}
-        this.connection.send(JSON.stringify({
-            type: "new_ice_candidate",
-            from: Backend.auth.user().email,
-            to: userId,
-            candidate: candidate,
-        }))
-        callback();
+        const message = {type:"new_ice_candidate",from:this.user,to:userId,candidate:candidate};
+        this.sendMessage(message);
     }
 
-};
+    sendMessage(object) {
+        this.connection.send(this.createMessage(object));
+    }
+
+    createMessage(object) {
+        return JSON.stringify(object);
+    }
+}
 
 export default Signalling.getInstance();

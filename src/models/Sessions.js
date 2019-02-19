@@ -30,9 +30,7 @@ class Sessions {
         ]
         callback();
         return;
-        console.log("LOADING LIST");
         Backend.db.getList('sessions',null, (err,rows) => {
-            console.log("GOT LIST");
             if (!err) {
                 this.list = rows;
             }
@@ -45,8 +43,6 @@ class Sessions {
         if (collection === 'sessions' && change.type !== 'modified') {
             switch (change.type) {
                 case "added" : {
-                    console.log("PROCESSING");
-                    console.log(change);
                     if (this.list.findIndex((item) => item.id === change.data.id) === -1 )
                         this.list.push(change.data);
                     break;

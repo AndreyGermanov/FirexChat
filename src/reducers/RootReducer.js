@@ -40,8 +40,6 @@ export const initialState = {
         updatesCounter:0
     },
     chat: {
-        localStream: null,
-        remoteStream: null,
         updatesCounter:0,
         mode: null
     }
@@ -70,8 +68,7 @@ export default function rootReducer(state=initialState,action) {
 
 const changeProperty = function(name,value,newState) {
     var clonedValue = _.cloneDeep(value);
-    console.log(clonedValue);
-    if (!clonedValue || !Object.getOwnPropertyNames(clonedValue).length) clonedValue = value;
+    if (!clonedValue || typeof(clonedValue) !== "object" || !Object.getOwnPropertyNames(clonedValue).length) clonedValue = value;
     eval("newState"+Store.getPropertyNameExpression(name)+ " = clonedValue;");
     return newState
 };

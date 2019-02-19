@@ -19,7 +19,6 @@ class Backend {
         this.db = Database;
         this.auth = Auth;
         this.videoChat = VideoChat;
-        console.log("BACKED IS CONSTRUCTED");
     }
 
     init() {

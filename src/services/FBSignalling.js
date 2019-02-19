@@ -39,14 +39,13 @@ class Signalling extends Service {
         const data = change.data;
         switch (collection) {
             case "offers":
-                console.log("RECEIVED OFFER SIGNAL");
-                this.triggerEvent("onSignal",[{type:'offer',data:data}]);
+                this.triggerEvent("onSignal",[{type:'video_offer',data:data}]);
                 break;
             case "answers":
-                this.triggerEvent("onSignal",[{type:'answer',data:data}]);
+                this.triggerEvent("onSignal",[{type:'video_answer',data:data}]);
                 break;
             case "iceCandidates":
-                this.triggerEvent("onSignal",[{type:'iceCandidate',data:data}])
+                this.triggerEvent("onSignal",[{type:'new_ice_candidate',data:data}])
         }
         Backend.db.deleteItem(collection,change.data.id,()=>{});
     }

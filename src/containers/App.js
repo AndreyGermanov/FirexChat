@@ -27,7 +27,7 @@ export default class AppContainer {
         }
     }
 
-    mapDispatchToProps(dispatch) {
+    mapDispatchToProps() {
         return {
             start: () => this.start()
         }

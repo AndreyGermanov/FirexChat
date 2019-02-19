@@ -22,9 +22,7 @@ export default class HeaderContainer {
     }
 
     mapStateToProps(state) {
-        return {
-
-        }
+        return {}
     }
 
     mapDispatchToProps(dispatch) {

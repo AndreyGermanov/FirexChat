@@ -2,7 +2,7 @@ import UsersListComponent from '../components/UsersList';
 import {connect} from 'react-redux';
 import Sessions from '../models/Sessions';
 import Store from '../store/Store';
-import VideoChat from '../services/VideoChat'
+import Backend from '../services/Backend'
 
 export default class UsersListContainer {
 
@@ -23,13 +23,14 @@ export default class UsersListContainer {
     }
 
     mapStateToProps(state) {
+        state = Store.getState();
         return {
             updatesCounter: state.users.updatesCounter,
             users: Sessions.list && Sessions.list.length ? Sessions.list : [
                 {id:'test@test.com'},
                 {id:'test2@test.com'}
             ],
-            incomingCalls: VideoChat.incomingCalls
+            incomingCalls: Backend.videoChat.incomingCalls
         }
     }
 
@@ -50,13 +51,14 @@ export default class UsersListContainer {
     }
 
     call(userId) {
-        VideoChat.call(userId);
+        Backend.videoChat.call(userId);
     }
 
     answer(userId) {
-        VideoChat.acceptCall(userId);
+        Backend.videoChat.acceptCall(userId);
     }
+
     reject(userId) {
-        VideoChat.rejectCall(userId);
+        Backend.videoChat.rejectCall(userId);
     }
 }

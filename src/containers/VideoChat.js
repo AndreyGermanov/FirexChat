@@ -1,6 +1,7 @@
 import VideoChatComponent from '../components/VideoChat';
 import {connect} from 'react-redux';
-import VideoChat from '../services/VideoChat'
+import Backend from '../services/Backend'
+import Store from "../store/Store";
 
 export default class VideoChatContainer {
 
@@ -21,25 +22,21 @@ export default class VideoChatContainer {
     }
 
     mapStateToProps(state) {
+        state = Store.getState();
         return {
-            stream: state.chat.localStream,
-            remoteStream: state.chat.remoteStream,
+            stream: Backend.videoChat.localStream,
+            remoteStream: Backend.videoChat.remoteStream,
             mode: state.chat.mode
         }
     }
 
     mapDispatchToProps(dispatch) {
         return {
-            openLocalCamera: () => this.openLocalCamera(),
             hangup: () => this.hangup()
         }
     }
 
-    openLocalCamera() {
-        VideoChat.openLocalCamera();
-    }
-
     hangup() {
-        VideoChat.hangup();
+        Backend.videoChat.hangup();
     }
 }

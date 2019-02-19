@@ -7,21 +7,15 @@ import t from '../utils/translate'
 export default class VideoChat extends Component {
 
     render() {
-        console.log("RERENDER");
-        console.log(this.props.stream);
-        console.log(this.props.remoteStream);
-        if (this.props.remoteStream) {
-            console.log(this.props.remoteStream.toURL());
-        }
         return (
             <View style={{flex:1,flexDirection:'column'}}>
                 <RTCView style={{flex:1,flexDirection:'row'}}  streamURL={this.props.remoteStream ? this.props.remoteStream.toURL() : null}>
                 </RTCView>
-                <View style={{paddingBottom:10,position:'absolute',flex:1,width:'100%',height:'100%',flexDirection:'row',justifyContent:'space-between',alignItems:'flex-end'}}>
+                <View style={{paddingBottom:10,position:'absolute',flex:1,width:'100%',height:'100%',zIndex:500,flexDirection:'row',justifyContent:'space-between',alignItems:'flex-end'}}>
                     <TouchableOpacity onPress={()=>this.props.hangup()}>
                         <Text>{t("Hang up")}</Text>
                     </TouchableOpacity>
-                    <RTCView style={{width:200,height:200}} streamURL={this.props.stream ? this.props.stream.toURL() : null}>
+                    <RTCView style={{width:200,height:200,zIndex:600}} streamURL={this.props.stream ? this.props.stream.toURL() : null}>
                     </RTCView>
                 </View>
             </View>
@@ -37,8 +31,5 @@ export default class VideoChat extends Component {
             </RTCView>
 
 
-    }
-
-    componentDidMount() {
     }
 }
