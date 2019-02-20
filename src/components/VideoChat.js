@@ -25,7 +25,7 @@ export default class VideoChat extends Component {
         // noinspection JSUnresolvedFunction
         return (
             <View style={Styles.callScreen}>
-                <Text style={}>Calling {this.props.username} ... </Text>
+                <Text style={Styles.callScreenText}>Calling {this.props.username} ... </Text>
                 <Image source={require('../img/calling.png')}/>
                 <TouchableOpacity onPress={()=>this.props.hangup()}>
                     <Image source={require("../img/phone-call-reject-icon-48x48.png")}/>
