@@ -22,11 +22,13 @@ export default class ProfileContainer {
 
     mapStateToProps(state) {
         return {
-
+            name: state.profile.name,
+            email: state.profile.email,
+            image: state.profile.image
         }
     }
 
-    mapDispatchToProps(dispatch) {
+    mapDispatchToProps() {
         return {
             logout: () => this.logout()
         }

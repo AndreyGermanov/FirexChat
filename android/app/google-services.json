@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "828607771367",
+    "firebase_url": "https://firexchat.firebaseio.com",
+    "project_id": "firexchat",
+    "storage_bucket": "firexchat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828607771367:android:6520d34bbd1166c7",
+        "android_client_info": {
+          "package_name": "com.firexchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828607771367-u251ceediq93afh18s6khc4kg5qsnkpo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDW6CyjbFfxFwBu7JoBhrrv_63Hp4ODTuw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

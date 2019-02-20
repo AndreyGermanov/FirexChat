@@ -1,35 +1,55 @@
 import React, {Component} from 'react';
 import {ChatMode} from "../reducers/RootReducer";
-import {View,TouchableOpacity,Text} from 'react-native';
+import {View,TouchableOpacity,Text,Image} from 'react-native';
 import {RTCView} from 'react-native-webrtc';
-import t from '../utils/translate'
+import Styles from '../styles/VideoChat';
 
 export default class VideoChat extends Component {
 
     render() {
         return (
-            <View style={{flex:1,flexDirection:'column'}}>
-                <RTCView style={{flex:1,flexDirection:'row'}}  streamURL={this.props.remoteStream ? this.props.remoteStream.toURL() : null}>
-                </RTCView>
-                <View style={{paddingBottom:10,position:'absolute',flex:1,width:'100%',height:'100%',zIndex:500,flexDirection:'row',justifyContent:'space-between',alignItems:'flex-end'}}>
-                    <TouchableOpacity onPress={()=>this.props.hangup()}>
-                        <Text>{t("Hang up")}</Text>
-                    </TouchableOpacity>
-                    <RTCView style={{width:200,height:200,zIndex:600}} streamURL={this.props.stream ? this.props.stream.toURL() : null}>
-                    </RTCView>
-                </View>
+            <View style={{flex:1,flexDirection:'column',backgroundColor:"#335baa"}}>
+                {this.renderScreen()}
             </View>
-        );
+        )
     }
 
-    renderBackground() {
-        if (this.props.mode === ChatMode.CALLING)
-            return <View style={{flex:1,flexDirection:'row',backgroundColor:"#006600"}}>
+    renderScreen() {
+        switch(this.props.mode) {
+            case ChatMode.CALLING: return this.renderCalling();
+            case ChatMode.TALKING: return this.renderTalking()
+        }
+    }
+
+    renderCalling() {
+        // noinspection JSUnresolvedFunction
+        return (
+            <View style={Styles.callScreen}>
+                <Text style={}>Calling {this.props.username} ... </Text>
+                <Image source={require('../img/calling.png')}/>
+                <TouchableOpacity onPress={()=>this.props.hangup()}>
+                    <Image source={require("../img/phone-call-reject-icon-48x48.png")}/>
+                </TouchableOpacity>
             </View>
-        if (this.props.mode === ChatMode.TALKING)
-            return <RTCView style={{flex:1,flexDirection:'row'}}  streamURL={this.props.remoteStream ? this.props.remoteStream.toURL() : null}>
-            </RTCView>
+        )
+    }
 
-
+    renderTalking() {
+        // noinspection JSUnresolvedFunction
+        return [
+            <RTCView objectFit='cover' key="video" style={Styles.remoteVideo}  streamURL={this.props.remoteStream}/>,
+            <View key="overlay"
+                  style={Styles.overlayScreen}>
+                <View style={Styles.overlayScreenHeader}>
+                    <Text style={Styles.usernameText}>{this.props.username}</Text>
+                    <View style={Styles.localVideoFrame}>
+                        <RTCView objectFit='cover' style={Styles.localVideo} streamURL={this.props.stream}/>
+                    </View>
+                </View>
+                <TouchableOpacity onPress={()=>this.props.hangup()} style={Styles.hangupButton}>
+                    <Image source={require("../img/phone-call-reject-icon-48x48.png")}/>
+                </TouchableOpacity>
+            </View>
+        ]
     }
 }

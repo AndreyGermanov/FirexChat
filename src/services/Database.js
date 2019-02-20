@@ -27,7 +27,7 @@ class Database {
                 let row = doc.data();
                 row["id"] = doc["id"];
                 rows.push(row);
-            })
+            });
             callback(null,rows);
         })
         .catch((err) => {

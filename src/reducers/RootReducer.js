@@ -16,8 +16,9 @@ export const Screens = {
 export const ChatMode = {
     CALLING: 'CHAT_MODE_CALLING',
     TALKING: 'CHAT_MODE_TALKING'
-}
+};
 
+// noinspection JSUnresolvedFunction
 /**
  * Global application state
  */
@@ -35,6 +36,11 @@ export const initialState = {
         password: "",
         confirmPassword: "",
         errors: {}
+    },
+    profile: {
+        name: "Andrey Germanov",
+        email: "andrey@it-port.ru",
+        image: require("../img/default_profile.png")
     },
     users: {
         updatesCounter:0
@@ -58,7 +64,10 @@ export default function rootReducer(state=initialState,action) {
             newState = changeProperty(action.name,action.value,newState);
             break;
         case actions.types.CHANGE_PROPERTIES:
-            for (let name in action.properties) changeProperty(name,action.properties[name],newState);
+            for (let name in action.properties) {
+                // noinspection JSUnfilteredForInLoop
+                changeProperty(name,action.properties[name],newState);
+            }
             break;
         default:
             break;
@@ -67,8 +76,12 @@ export default function rootReducer(state=initialState,action) {
 }
 
 const changeProperty = function(name,value,newState) {
-    var clonedValue = _.cloneDeep(value);
-    if (!clonedValue || typeof(clonedValue) !== "object" || !Object.getOwnPropertyNames(clonedValue).length) clonedValue = value;
+    let clonedValue = _.cloneDeep(value);
+    if (!clonedValue || typeof(clonedValue) !== "object" || !Object.getOwnPropertyNames(clonedValue).length) {
+        // noinspection JSUnusedAssignment
+        clonedValue = value;
+    }
+    // noinspection JSUnresolvedFunction
     eval("newState"+Store.getPropertyNameExpression(name)+ " = clonedValue;");
     return newState
 };

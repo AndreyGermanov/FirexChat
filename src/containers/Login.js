@@ -31,7 +31,7 @@ export default class LoginContainer {
         }
     }
 
-    mapDispatchToProps(dispatch) {
+    mapDispatchToProps() {
         return {
             submit: () => this.submit(),
             changeField: (name,value) => this.changeField(name,value),

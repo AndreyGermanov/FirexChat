@@ -26,15 +26,15 @@ export default class UsersListContainer {
         state = Store.getState();
         return {
             updatesCounter: state.users.updatesCounter,
-            users: Sessions.list && Sessions.list.length ? Sessions.list : [
-                {id:'test@test.com'},
-                {id:'test2@test.com'}
+            users: [
+                {id:'test@test.com',key:'test@test.com',name:'Andrey Germanov'},
+                {id:'test2@test.com',key:'test2@test.com',name:'John Doe'}
             ],
             incomingCalls: Backend.videoChat.incomingCalls
         }
     }
 
-    mapDispatchToProps(dispatch) {
+    mapDispatchToProps() {
         return {
             loadList: () => this.loadList(),
             call: (userId) => this.call(userId),

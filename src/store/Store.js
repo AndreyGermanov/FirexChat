@@ -47,7 +47,7 @@ const Store = class {
             if (!object || !object["handleEvent"] || typeof(object["handleEvent"]) !== "function") {
                 callback();
                 return;
-            };
+            }
             object.handleEvent(event, () => {
                 callback();
             })
@@ -89,7 +89,6 @@ const Store = class {
     }
 
     getValue(name) {
-        const state = this.getState();
         return eval("state"+this.getPropertyNameExpression(name))
     }
 };

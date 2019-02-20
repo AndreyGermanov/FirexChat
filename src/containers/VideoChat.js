@@ -2,6 +2,7 @@ import VideoChatComponent from '../components/VideoChat';
 import {connect} from 'react-redux';
 import Backend from '../services/Backend'
 import Store from "../store/Store";
+import Sessions from '../models/Sessions'
 
 export default class VideoChatContainer {
 
@@ -23,14 +24,23 @@ export default class VideoChatContainer {
 
     mapStateToProps(state) {
         state = Store.getState();
+        const users = Sessions.list.filter((item) => item.id === Backend.videoChat.peerUser);
+        let username = null;
+        let user = null;
+        if (users && users.length) {
+            user = users[0];
+            username = user.name;
+        }
         return {
-            stream: Backend.videoChat.localStream,
-            remoteStream: Backend.videoChat.remoteStream,
-            mode: state.chat.mode
+            stream: Backend.videoChat.localStream ? Backend.videoChat.localStream.toURL() : null,
+            remoteStream: Backend.videoChat.remoteStream ? Backend.videoChat.remoteStream.toURL() : null,
+            mode: state.chat.mode,
+            user: user,
+            username: username
         }
     }
 
-    mapDispatchToProps(dispatch) {
+    mapDispatchToProps() {
         return {
             hangup: () => this.hangup()
         }

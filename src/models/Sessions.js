@@ -16,8 +16,8 @@ class Sessions {
 
     init() {
         this.list = [
-            {id:'test@test.com'},
-            {id:'test2@test.com'}
+            {id:'test@test.com',name:'Andrey Germanov'},
+            {id:'test2@test.com',name:'John Doe'}
         ];
         Backend.auth.subscribe(this);
         Backend.db.subscribe(this,'sessions');
@@ -25,17 +25,10 @@ class Sessions {
 
     loadList(callback) {
         this.list = [
-            {id:'test@test.com'},
-            {id:'test2@test.com'}
-        ]
+            {id:'test@test.com',name:'Andrey Germanov'},
+            {id:'test2@test.com',name:'John Doe'}
+        ];
         callback();
-        return;
-        Backend.db.getList('sessions',null, (err,rows) => {
-            if (!err) {
-                this.list = rows;
-            }
-            callback();
-        })
     }
 
     onDatabaseChange(collection,change) {
@@ -59,7 +52,6 @@ class Sessions {
     }
 
     onAuthChange(isLogin) {
-        this.list = [];
         if (isLogin) {
             Backend.db.subscribe(this,'sessions');
         } else {

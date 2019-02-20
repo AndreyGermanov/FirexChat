@@ -25,6 +25,6 @@ class Backend {
        Auth.init();
        VideoChat.init();
     }
-};
+}
 
 export default Backend.getInstance();

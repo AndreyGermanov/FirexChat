@@ -22,10 +22,12 @@ export default class HeaderContainer {
     }
 
     mapStateToProps(state) {
-        return {}
+        return {
+            activeScreen: state.activeScreen
+        }
     }
 
-    mapDispatchToProps(dispatch) {
+    mapDispatchToProps() {
         return {
             gotoUsers: () => this.gotoUsers(),
             gotoProfile: () => this.gotoProfile()

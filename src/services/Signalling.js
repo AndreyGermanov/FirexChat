@@ -74,17 +74,17 @@ class Signalling extends Service {
         this.sendMessage(message);
     }
 
-    sendOffer(userId,sdp,answer_type,callback=()=>{}) {
+    sendOffer(userId,sdp,answer_type) {
         const message = {type:'video_offer',from:this.user,to:userId,sdp:sdp,answer_type:answer_type};
         this.sendMessage(message);
     }
 
-    sendAnswer(userId,sdp,answer_type,callback=()=>{}) {
+    sendAnswer(userId,sdp,answer_type) {
         const message = {type:"video_answer",from:this.user,to:userId,sdp:sdp,answer_type:answer_type};
         this.sendMessage(message);
     }
 
-    sendIceCandidate(userId,candidate,callback=()=>{}) {
+    sendIceCandidate(userId,candidate) {
         const message = {type:"new_ice_candidate",from:this.user,to:userId,candidate:candidate};
         this.sendMessage(message);
     }

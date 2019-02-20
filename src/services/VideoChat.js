@@ -4,6 +4,7 @@ import Backend from './Backend';
 import Signalling from './Signalling'
 import Store from "../store/Store";
 import {Screens,ChatMode} from "../reducers/RootReducer";
+import Sound from 'react-native-sound';
 
 class VideoChat {
 
@@ -25,6 +26,9 @@ class VideoChat {
         this.incomingCalls = {};
         this.localStream = null;
         this.remoteStream = null;
+        this.ringInterval = null;
+        this.callInterval = null;
+        this.sound = null;
     }
 
     init() {
@@ -38,14 +42,24 @@ class VideoChat {
         this.iceCandidates = [];
         Store.changeProperties({"activeScreen":Screens.VIDEO_CHAT, "chat.mode": ChatMode.CALLING});
         Signalling.sendCallRequest(userId);
+        if (this.callInterval === null) {
+            this.callInterval = setInterval(() => {
+                this.sound = new Sound('call.mp3', Sound.MAIN_BUNDLE, () => {
+                    if (this.sound) this.sound.play((success) => {});
+                });
+            },5000)
+        }
     }
 
     acceptCall(userId) {
         this.peerUser = userId;
         this.sessionOpened = true;
         this.iceCandidates = [];
-        Store.changeProperties({"activeScreen":Screens.VIDEO_CHAT, "chat.mode": ChatMode.CALLING});
+        Store.changeProperties({"activeScreen":Screens.VIDEO_CHAT, "chat.mode": ChatMode.TALKING});
         Signalling.sendCallResponse(userId,true);
+        clearInterval(this.ringInterval);
+        if (this.sound) this.sound.stop();
+        this.ringInterval = null;
     }
 
     rejectCall(userId) {
@@ -53,6 +67,9 @@ class VideoChat {
         let state = Store.getState();
         Store.changeProperties({"activeScreen":Screens.USERS_LIST, "users.updatesCounter": state.users.updatesCounter+1});
         Signalling.sendCallResponse(userId,false);
+        clearInterval(this.ringInterval);
+        if (this.sound) this.sound.stop();
+        this.ringInterval = null;
     }
 
     sendOffer(userId,callback=()=>{}) {
@@ -109,7 +126,7 @@ class VideoChat {
                 facingMode: "user"
             } })
         .then(stream => this.addLocalStream(stream,callback))
-        .catch(error => {
+        .catch(() => {
             if (this.localStream != null) this.addLocalStream(this.localStream,callback);
         });
     }
@@ -145,6 +162,13 @@ class VideoChat {
         const state = Store.getState();
         this.incomingCalls[data.from] = data;
         Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
+        if (this.ringInterval === null) {
+            this.ringInterval = setInterval(() => {
+                this.sound = new Sound('ring.mp3', Sound.MAIN_BUNDLE, () => {
+                    if (this.sound) this.sound.play((success) => {});
+                });
+            }, 5000);
+        }
     }
 
     onCallResponse(data) {
@@ -159,6 +183,11 @@ class VideoChat {
         } else {
             this.sendOffer(data.from)
         }
+        clearInterval(this.ringInterval);
+        clearInterval(this.callInterval);
+        this.ringInterval = null;
+        this.callInterval = null;
+        if (this.sound) this.sound.stop();
     }
 
     onVideoOffer(data) {
@@ -183,16 +212,27 @@ class VideoChat {
 
     hangup() {
         this.eraseConnection();
+        clearInterval(this.callInterval);
+        clearInterval(this.ringInterval);
+        this.callInterval = null;
+        this.ringInterval = null;
+        if (this.sound) this.sound.stop();
+        this.sound = new Sound('hangup.mp3', Sound.MAIN_BUNDLE, () => {
+            if (this.sound) this.sound.play((success) => {});
+        });
         Store.changeProperties({"activeScreen": Screens.USERS_LIST, "chat.mode": null})
     }
 
     eraseConnection() {
-        const state = Store.getState()
+        const state = Store.getState();
         if (this.connection) this.connection.close();
-        if (state.chat.mode === ChatMode.TALKING) {
-            Signalling.sendOffer(this.peerUser,{},'reject',()=>{})
-        } else {
-            Signalling.sendCallResponse(this.peerUser,false);
+        if (this.peerUser) {
+            if (state.chat.mode === ChatMode.TALKING) {
+                Signalling.sendOffer(this.peerUser, {}, 'reject', () => {
+                })
+            } else {
+                Signalling.sendCallResponse(this.peerUser, false);
+            }
         }
         this.eraseSession();
     }

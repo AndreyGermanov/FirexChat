@@ -3,8 +3,6 @@ import async from 'async';
 import Store from '../store/Store';
 import {Screens} from "../reducers/RootReducer";
 import Service from './Service';
-import Backend from './Backend';
-
 import t from '../utils/translate'
 
 class Auth extends Service {
@@ -34,7 +32,7 @@ class Auth extends Service {
         if (user && user.email) {
             this.applyLogin();
         } else {
-            if (user) firebase.auth().signOut();
+            if (user) firebase.auth().signOut().then(()=>{});
             this.applyLogout();
         }
     }
@@ -44,17 +42,10 @@ class Auth extends Service {
     }
 
     applyLogin() {
-        if (this.updateActivityTimer == null) {
-            /*
-            this.updateActivityTimer = setInterval(
-                () => Backend.db.updateUserSession(this.user().email, Date()),
-                5000);
-                */
-        }
         Store.changeProperties({
             isLogin: true,
             activeScreen: Screens.USERS_LIST
-        })
+        });
         this.triggerEvent("onAuthChange",[true]);
     }
 
@@ -64,7 +55,7 @@ class Auth extends Service {
         Store.changeProperties({
             isLogin: false,
             activeScreen: Screens.LOGIN
-        })
+        });
         this.triggerEvent("onAuthChange",[false]);
     }
 
@@ -79,7 +70,7 @@ class Auth extends Service {
     }
 
     logout(callback) {
-        firebase.auth().signOut(() => {
+        firebase.auth().signOut().then(() => {
             callback()
         })
     }

@@ -1,44 +1,40 @@
-import React, {Component} from 'react';
+import React from 'react';
+import Login from './Login';
 import {View,Text,TextInput,TouchableOpacity} from 'react-native';
 import t from "../utils/translate";
+import Styles from '../styles/Login';
 
-export default class Register extends Component {
+export default class Register extends Login {
 
-    render() {
+    renderForm() {
         return [
             this.props.errors.general ?
                 <View key={'register_general_error'}>
-                    <Text>{this.props.errors.general}</Text>
+                    <Text style={Styles.error}>{this.props.errors.general}</Text>
                 </View> : null,
             <View key={'register_login'}>
-                <Text>{t("Email")}</Text>
-                { this.props.errors.name ? <Text>{this.props.errors.name}</Text> : null }
-                <TextInput autoCaptialize="none" autoCorrect={false}
+                <Text style={Styles.fieldLabelText}>{t("Email")}</Text>
+                { this.props.errors.name ? <Text style={Styles.error}>{this.props.errors.name}</Text> : null }
+                <TextInput autoCaptialize="none" autoCorrect={false} style={Styles.inputField}
                            value={this.props.name} onChangeText={(text) => this.props.changeField('name',text)}/>
             </View>,
             <View key={'register_password'}>
-                <Text>{t("Password")}</Text>
-                { this.props.errors.password ? <Text>{this.props.errors.password}</Text> : null }
-                <TextInput autoCaptialize="none" autoCorrect={false} secureTextEntry={true}
+                <Text style={Styles.fieldLabelText}>{t("Password")}</Text>
+                { this.props.errors.password ? <Text style={Styles.error}>{this.props.errors.password}</Text> : null }
+                <TextInput autoCaptialize="none" autoCorrect={false} secureTextEntry={true}  style={Styles.inputField}
                            value={this.props.password} onChangeText={(text) => this.props.changeField('password',text)}/>
             </View>,
             <View key={'register_confirmPassword'}>
-                <Text>{t("Confirm Password")}</Text>
-                <TextInput autoCaptialize="none" autoCorrect={false} secureTextEntry={true}
+                <Text style={Styles.fieldLabelText}>{t("Confirm Password")}</Text>
+                <TextInput autoCaptialize="none" autoCorrect={false} secureTextEntry={true}  style={Styles.inputField}
                            value={this.props.confirmPassword} onChangeText={(text) => this.props.changeField('confirmPassword',text)}/>
             </View>,
-            <View key={'register_submit'}>
-                <TouchableOpacity onPress={() => this.props.submit()}>
-                    <View>
-                        <Text>{t("Register")}</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>,
-            <View key={'register_login_link'}>
-                <TouchableOpacity onPress={() => this.props.goLogin()}>
-                    <Text>Already registered ?</Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => this.props.submit()} key={'register_submit'} style={Styles.button}>
+                <Text style={Styles.buttonText}>{t("R E G I S T E R")}</Text>
+            </TouchableOpacity>,
+            <TouchableOpacity onPress={() => this.props.goLogin()} key={'register_login_link'} style={Styles.link}>
+                <Text style={Styles.linkText}>Already registered ?</Text>
+            </TouchableOpacity>
         ]
     }
 }
