@@ -4,28 +4,56 @@ import t from "../utils/translate";
 import SimpleLine from 'react-native-vector-icons/SimpleLineIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Styles from '../styles/Profile'
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
 
 export default class Profile extends Component {
 
     render() {
         return (
-            <View style={Styles.container}>
+            <KeyboardAwareScrollView contentContainerStyle={Styles.container}>
                 <View style={Styles.profileImageContainer}>
                     <Image source={this.props.image} style={Styles.profileImage}/>
                     <Text style={Styles.profileNameText}>{this.props.name}</Text>
                 </View>
                 <View style={Styles.formHeader}>
+                    { this.props.errors.general ? <Text style={Styles.error}>{this.props.errors.general}</Text> : null }
                     <Text style={Styles.formHeaderText}>{t("SETTINGS")}</Text>
                 </View>
                 <View style={Styles.profileNameContainer}>
-                    <SimpleLine name="user" size={20} color="#333333"/>
-                    <TextInput value={this.props.name} style={Styles.inputField}/>
+                    <SimpleLine name="user" size={20} style={Styles.fieldIcon} color="#333333"/>
+                    <View style={Styles.formFieldContainer}>
+                        { this.props.errors.name ? <Text style={Styles.error}>{this.props.errors.name}</Text> : null }
+                        <TextInput value={this.props.name} style={Styles.inputField}
+                            onChangeText={(text) => this.props.changeField("name",text)}/>
+                    </View>
                 </View>
                 <View style={Styles.profileEmailContainer}>
-                    <Octicons name="mail" size={20} color="#333333"/>
-                    <TextInput value={this.props.email} style={Styles.inputField}/>
+                    <Octicons name="mail" size={20} style={Styles.fieldIcon} color="#333333"/>
+                    <View style={Styles.formFieldContainer}>
+                        { this.props.errors.email ? <Text style={Styles.error}>{this.props.errors.email}</Text> : null }
+                        <TextInput value={this.props.email} style={Styles.inputField}
+                           onChangeText={(text) => this.props.changeField("email",text)}/>
+                    </View>
                 </View>
-                <TouchableOpacity style={Styles.button}>
+                <View style={Styles.formHeader}>
+                    <Text style={Styles.formHeaderText}>{t("CHANGE PASSWORD")}</Text>
+                </View>
+                <View style={Styles.profileNameContainer}>
+                    <Octicons name="lock" size={20} style={Styles.fieldIcon} color="#333333"/>
+                    <View style={Styles.formFieldContainer}>
+                        { this.props.errors.password ? <Text style={Styles.error}>{this.props.errors.password}</Text> : null }
+                        <TextInput value={this.props.password} style={Styles.inputField} secureTextEntry={true}
+                                   onChangeText={(text) => this.props.changeField("password",text)}/>
+                    </View>
+                </View>
+                <View style={Styles.profileNameContainer}>
+                    <Octicons name="lock" size={20} style={Styles.fieldIcon} color="#333333"/>
+                    <View style={Styles.formFieldContainer}>
+                        <TextInput value={this.props.confirmPassword} style={Styles.inputField} secureTextEntry={true}
+                                   onChangeText={(text) => this.props.changeField("confirmPassword",text)}/>
+                    </View>
+                </View>
+                <TouchableOpacity style={Styles.button} onPress={() => this.props.submit()}>
                     <View>
                         <Text style={Styles.buttonText}>{t("SAVE")}</Text>
                     </View>
@@ -35,7 +63,7 @@ export default class Profile extends Component {
                         <Text style={Styles.buttonText}>{t("LOGOUT")}</Text>
                     </View>
                 </TouchableOpacity>
-            </View>
+            </KeyboardAwareScrollView>
         )
     }
 }

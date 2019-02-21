@@ -1,6 +1,7 @@
 import Backend from './Backend'
 import Service from './Service';
 import WebSocketConfig from '../config/websocket';
+import _ from 'lodash';
 
 /**
  * Service used as a client for WebRTC signalling server. Used by VideoChat module exchange
@@ -19,16 +20,21 @@ class Signalling extends Service {
         return Signalling.instance;
     }
 
-    init() {
+    constructor() {
+        super()
         this.user = null;
+        this.messageQueue = [];
         this.getMessagesInterval = null;
-        this.connect();
+        this.tryConnectInterval = null;
+        this.connectionStatus = null;
+    }
+
+    init() {
         Backend.auth.subscribe(this);
     }
 
     connect() {
         this.connection = new WebSocket(WebSocketConfig.url);
-
         this.connection.onopen = () => {
             if (this.getMessagesInterval === null) {
                 this.getMessagesInterval = setInterval(() => {
@@ -44,23 +50,27 @@ class Signalling extends Service {
             }
         };
 
-        this.connection.onclose = () => {
-            if (this.getMessagesInterval !== null) {
-                clearInterval(this.getMessagesInterval);
-                this.getMessagesInterval = null;
-            }
-            this.connect();
-        };
     }
 
     onAuthChange(isLogin) {
         if (isLogin) {
             this.user = Backend.auth.user().email;
-            this.connect();
+            if (!this.tryConnectInterval) {
+                this.tryConnectInterval = setInterval(() => {
+                    if (!this.connection || this.connection.readyState !== this.connection.OPEN) {
+                        this.connect();
+                    }
+                    if (this.connection.readyState === 1) {
+                        this.sendMessageQueue();
+                    }
+                },5000);
+            }
         } else {
             clearInterval(this.getMessagesInterval);
+            clearInterval(this.tryConnectInterval);
             this.getMessagesInterval = null;
-            this.connection.close();
+            this.tryConnectInterval = null;
+            if (this.connection) this.connection.close();
         }
     }
 
@@ -89,12 +99,52 @@ class Signalling extends Service {
         this.sendMessage(message);
     }
 
+    sendUserProfile() {
+        const message = Backend.auth.getProfile();
+        if (!message.id) return;
+        message.type = "update_user_profile";
+        message.from = message.id;
+        this.sendMessage(message);
+    }
+
+    requestUsersList() {
+        const message = {type:"request_users_list",from:this.user};
+        this.sendMessage(message);
+    }
+
     sendMessage(object) {
-        this.connection.send(this.createMessage(object));
+        this.checkConnection();
+        if (this.isOnline()) {
+            this.connection.send(this.createMessage(object));
+        } else {
+            if (!this.messageQueue.length || !_.isEqual(this.messageQueue[this.messageQueue.length-1],object)) {
+                this.messageQueue.push(object);
+            }
+        }
+    }
+
+    sendMessageQueue() {
+        if (!this.messageQueue) this.messageQueue = [];
+        while (this.messageQueue.length) {
+            const message = this.messageQueue.shift();
+            this.sendMessage(message);
+        }
     }
 
     createMessage(object) {
         return JSON.stringify(object);
+    }
+
+    checkConnection() {
+        if (this.connection && this.connectionStatus !== this.connection.readyState) {
+            this.connectionStatus = this.connection.readyState;
+            if (this.isOnline()) this.sendUserProfile();
+            this.triggerEvent("onSignal",[{type:"connection_status",data:{status:this.connection.readyState}}])
+        }
+    }
+
+    isOnline() {
+        return this.connectionStatus === 1
     }
 }
 

@@ -22,9 +22,7 @@ class Auth extends Service {
         firebase.auth().onAuthStateChanged((user) => {
             this.checkLogin(user)
         });
-        this.updateActivityTimer = null;
         this.checkLogin(this.user())
-
     }
 
     checkLogin(user) {
@@ -42,16 +40,19 @@ class Auth extends Service {
     }
 
     applyLogin() {
+        const profile = this.getProfile();
+        // noinspection JSUnresolvedFunction
         Store.changeProperties({
             isLogin: true,
-            activeScreen: Screens.USERS_LIST
+            activeScreen: Screens.USERS_LIST,
+            "profile.name": profile.name,
+            "profile.email": profile.id,
+            "profile.image": profile.image
         });
         this.triggerEvent("onAuthChange",[true]);
     }
 
     applyLogout() {
-        clearInterval(this.updateActivityTimer);
-        this.updateActivityTimer = null;
         Store.changeProperties({
             isLogin: false,
             activeScreen: Screens.LOGIN
@@ -59,7 +60,7 @@ class Auth extends Service {
         this.triggerEvent("onAuthChange",[false]);
     }
 
-    login(email,password,callback) {
+    login(email,password,callback=()=>{}) {
         firebase.auth().signInWithEmailAndPassword(email,password)
             .then(() => {
                 callback()
@@ -69,13 +70,13 @@ class Auth extends Service {
             })
     }
 
-    logout(callback) {
+    logout(callback=()=>{}) {
         firebase.auth().signOut().then(() => {
             callback()
         })
     }
 
-    register(email,password,callback) {
+    register(email,password,callback=()=>{}) {
         firebase.auth().createUserWithEmailAndPassword(email,password)
         .then(() => {
             callback();
@@ -85,7 +86,7 @@ class Auth extends Service {
         })
     }
 
-    update(fields,callback) {
+    update(fields,callback=()=>{}) {
         if (!this.user()) {
             callback(t("Not logged in"));
             return;
@@ -106,7 +107,7 @@ class Auth extends Service {
         });
     }
 
-    updateEmail(email,callback) {
+    updateEmail(email,callback=()=>{}) {
         if (!email || email === this.user().email) {
             callback();
             return;
@@ -120,7 +121,7 @@ class Auth extends Service {
         })
     }
 
-    updatePassword(password,callback) {
+    updatePassword(password,callback=()=>{}) {
         if (!password) {
             callback();
             return;
@@ -134,7 +135,7 @@ class Auth extends Service {
         })
     }
 
-    updateProfile(profile,callback) {
+    updateProfile(profile,callback=()=>{}) {
         if (!profile || !Object.getOwnPropertyNames(profile).length) {
             callback();
             return;
@@ -146,6 +147,17 @@ class Auth extends Service {
         .catch((error) => {
             callback(error.message)
         })
+    }
+
+    getProfile() {
+        const user = this.user();
+        if (!user || !user.email) return {};
+        return {
+            id: user.email,
+            name: user.displayName ? user.displayName : user.email,
+            image: user.photoURL ? user.photoURL : "",
+            updatedAt: Date.now()
+        }
     }
 }
 

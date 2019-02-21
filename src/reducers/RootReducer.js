@@ -40,7 +40,10 @@ export const initialState = {
     profile: {
         name: "Andrey Germanov",
         email: "andrey@it-port.ru",
-        image: require("../img/default_profile.png")
+        image: "",
+        password: "",
+        confirmPassword: "",
+        errors: {}
     },
     users: {
         updatesCounter:0

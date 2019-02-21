@@ -34,12 +34,18 @@ export default StyleSheet.create({
         justifyContent:'flex-start',
         alignItems:'center'
     },
+    formFieldContainer: {
+        flex:1,
+        marginLeft:15,
+        backgroundColor:"#dddddd"
+    },
+    fieldIcon: {width:20},
     inputField: {
-        marginLeft:10,
         padding:0,
         marginRight:15,
         textAlign:'left',
-        width:'100%'
+        paddingLeft:5,
+        width:"100%",
     },
     profileEmailContainer: {
         paddingTop:10,
@@ -59,5 +65,6 @@ export default StyleSheet.create({
     buttonText: {
         color:"white",
         fontWeight:'900'
-    }
+    },
+    error: { color:'red' }
 });

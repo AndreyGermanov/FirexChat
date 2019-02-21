@@ -26,11 +26,11 @@ export default class UsersListContainer {
         state = Store.getState();
         return {
             updatesCounter: state.users.updatesCounter,
-            users: [
-                {id:'test@test.com',key:'test@test.com',name:'Andrey Germanov'},
-                {id:'test2@test.com',key:'test2@test.com',name:'John Doe'}
-            ],
-            incomingCalls: Backend.videoChat.incomingCalls
+            users: Sessions.list ? Sessions.list
+                .filter((item) => item.id !== Backend.auth.user().email)
+                .map((item) => { item.key = item.id; return item;}) : [],
+            incomingCalls: Backend.videoChat.incomingCalls,
+            isOnline: Backend.videoChat.isOnline()
         }
     }
 

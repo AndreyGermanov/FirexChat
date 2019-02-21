@@ -1,5 +1,6 @@
 import Backend from '../services/Backend';
 import Store from '../store/Store';
+import Signalling from "../services/Signalling";
 
 class Sessions {
 
@@ -15,48 +16,42 @@ class Sessions {
     }
 
     init() {
-        this.list = [
-            {id:'test@test.com',name:'Andrey Germanov'},
-            {id:'test2@test.com',name:'John Doe'}
-        ];
+        this.list = [];
         Backend.auth.subscribe(this);
-        Backend.db.subscribe(this,'sessions');
     }
 
-    loadList(callback) {
-        this.list = [
-            {id:'test@test.com',name:'Andrey Germanov'},
-            {id:'test2@test.com',name:'John Doe'}
-        ];
-        callback();
-    }
-
-    onDatabaseChange(collection,change) {
-        let state = Store.getState();
-        if (collection === 'sessions' && change.type !== 'modified') {
-            switch (change.type) {
-                case "added" : {
-                    if (this.list.findIndex((item) => item.id === change.data.id) === -1 )
-                        this.list.push(change.data);
-                    break;
-                }
-                case "removed": {
-                    let id = this.list.findIndex(change.data.id);
-                    if (id !== -1) {
-                        this.list.splice(id,1);
-                    }
-                }
-            }
-            Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
-        }
+    loadList(callback=()=>{}) {
+        Signalling.requestUsersList();
     }
 
     onAuthChange(isLogin) {
         if (isLogin) {
-            Backend.db.subscribe(this,'sessions');
+            Signalling.subscribe(this);
+            this.loadList();
         } else {
-            Backend.db.unsubscribe(this,'sessions');
+            this.list = [];
+            Signalling.unsubscribe(this);
         }
+    }
+
+    onSignal(event) {
+        let state = Store.getState();
+        switch (event.type) {
+            case "update_user_profile":
+                this.updateUser(event.data);
+                Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
+                break;
+            case "users_list":
+                const list = event.data.list;
+                if (list && list.length) list.forEach((data) => this.updateUser(data));
+                Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
+        }
+    }
+
+    updateUser(data) {
+        let index = this.list.findIndex((item) => item.id === data.id);
+        if (index === -1) index = this.list.length;
+        this.list[index] = { id: data.id, name: data.name, image: data.image };
     }
 }
 

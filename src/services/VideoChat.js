@@ -37,6 +37,7 @@ class VideoChat {
     }
 
     call(userId) {
+        if (!this.isOnline()) return;
         this.peerUser = userId;
         this.sessionOpened = true;
         this.iceCandidates = [];
@@ -52,6 +53,7 @@ class VideoChat {
     }
 
     acceptCall(userId) {
+        if (!this.isOnline()) return;
         this.peerUser = userId;
         this.sessionOpened = true;
         this.iceCandidates = [];
@@ -63,6 +65,7 @@ class VideoChat {
     }
 
     rejectCall(userId) {
+        if (!this.isOnline()) return;
         delete this.incomingCalls[userId];
         let state = Store.getState();
         Store.changeProperties({"activeScreen":Screens.USERS_LIST, "users.updatesCounter": state.users.updatesCounter+1});
@@ -154,7 +157,8 @@ class VideoChat {
             case "call_response":     this.onCallResponse(event.data); break;
             case "video_offer":       this.onVideoOffer(event.data); break;
             case "video_answer":      this.onVideoAnswer(event.data); break;
-            case "new_ice_candidate": this.onNewIceCandidate(event.data);
+            case "new_ice_candidate": this.onNewIceCandidate(event.data); break;
+            case "connection_status": this.onConnectionStatus(event.data);
         }
     }
 
@@ -210,17 +214,34 @@ class VideoChat {
         this.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
     }
 
+    onConnectionStatus() {
+        const state = Store.getState();
+        if (!this.isOnline()) {
+            this.hangup();
+        } else {
+            Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1)
+        }
+    }
+
     hangup() {
+        const state = Store.getState();
         this.eraseConnection();
         clearInterval(this.callInterval);
         clearInterval(this.ringInterval);
         this.callInterval = null;
         this.ringInterval = null;
         if (this.sound) this.sound.stop();
-        this.sound = new Sound('hangup.mp3', Sound.MAIN_BUNDLE, () => {
-            if (this.sound) this.sound.play((success) => {});
-        });
-        Store.changeProperties({"activeScreen": Screens.USERS_LIST, "chat.mode": null})
+        if (state.activeScreen === Screens.VIDEO_CHAT) {
+            this.sound = new Sound('hangup.mp3', Sound.MAIN_BUNDLE, () => {
+                if (this.sound) this.sound.play((success) => {
+                });
+            });
+        }
+        Store.changeProperties({
+            "activeScreen": Screens.USERS_LIST,
+            "chat.mode": null,
+            "users.updatesCounter": state.users.updatesCounter+1
+        })
     }
 
     eraseConnection() {
@@ -243,6 +264,8 @@ class VideoChat {
         this.peerUser = "";
         this.iceCandidates = [];
     }
+
+    isOnline() { return Signalling.isOnline()}
 }
 
 export default VideoChat.getInstance();
