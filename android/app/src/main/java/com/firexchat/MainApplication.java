@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 
 import com.facebook.react.ReactApplication;
+import org.reactnative.camera.RNCameraPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
+import io.invertase.firebase.storage.RNFirebaseStoragePackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -32,12 +34,15 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNCameraPackage(),
             new RNSoundPackage(),
             new VectorIconsPackage(),
             new WebRTCModulePackage(),
               new RNFirebasePackage(),
               new RNFirebaseAuthPackage(),
-              new RNFirebaseFirestorePackage()
+              new RNFirebaseFirestorePackage(),
+              new RNFirebaseStoragePackage()
+
       );
     }
 

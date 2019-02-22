@@ -12,7 +12,7 @@ export default class UsersList extends Component {
 
     renderItem(item) {
         // noinspection JSUnresolvedFunction
-        const image = item.image ? item.image :  require("../img/default_profile.png");
+        const image = item.image ? {uri:item.image} :  require("../img/default_profile.png");
         return (
             <View style={Styles.itemRowContainer}>
                     <View style={Styles.itemContainer}>
@@ -52,9 +52,4 @@ export default class UsersList extends Component {
             </View>)
         }
     }
-
-    componentDidMount() {
-       // this.props.loadList();
-    }
-
 }

@@ -4,7 +4,7 @@ import t from "../utils/translate";
 import SimpleLine from 'react-native-vector-icons/SimpleLineIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Styles from '../styles/Profile'
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview'
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 
 export default class Profile extends Component {
 
@@ -12,7 +12,9 @@ export default class Profile extends Component {
         return (
             <KeyboardAwareScrollView contentContainerStyle={Styles.container}>
                 <View style={Styles.profileImageContainer}>
-                    <Image source={this.props.image} style={Styles.profileImage}/>
+                    <TouchableOpacity onPress={() => this.props.changeImage()}>
+                        <Image source={this.props.image} style={Styles.profileImage}/>
+                    </TouchableOpacity>
                     <Text style={Styles.profileNameText}>{this.props.name}</Text>
                 </View>
                 <View style={Styles.formHeader}>
@@ -25,14 +27,6 @@ export default class Profile extends Component {
                         { this.props.errors.name ? <Text style={Styles.error}>{this.props.errors.name}</Text> : null }
                         <TextInput value={this.props.name} style={Styles.inputField}
                             onChangeText={(text) => this.props.changeField("name",text)}/>
-                    </View>
-                </View>
-                <View style={Styles.profileEmailContainer}>
-                    <Octicons name="mail" size={20} style={Styles.fieldIcon} color="#333333"/>
-                    <View style={Styles.formFieldContainer}>
-                        { this.props.errors.email ? <Text style={Styles.error}>{this.props.errors.email}</Text> : null }
-                        <TextInput value={this.props.email} style={Styles.inputField}
-                           onChangeText={(text) => this.props.changeField("email",text)}/>
                     </View>
                 </View>
                 <View style={Styles.formHeader}>

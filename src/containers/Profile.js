@@ -26,10 +26,13 @@ export default class ProfileContainer {
     }
 
     mapStateToProps(state) {
+        let image = state.profile.selectedImage ? {uri: state.profile.selectedImage} :
+            state.profile.image ? {uri:state.profile.image} : require("../img/default_profile.png");
         return {
             name: state.profile.name,
-            email: state.profile.email,
-            image: state.profile.image ? {url: state.profile.image} : require("../img/default_profile.png"),
+            image: image,
+            password: state.profile.password,
+            confirmPassword: state.profile.confirmPassword,
             errors: state.profile.errors
         }
     }
@@ -38,6 +41,7 @@ export default class ProfileContainer {
         return {
             logout: () => this.logout(),
             changeField: (name,value) => this.changeField(name,value),
+            changeImage: () => this.changeImage(),
             submit: () => this.submit()
         }
     }
@@ -48,6 +52,10 @@ export default class ProfileContainer {
 
     changeField(name,value) {
         Store.changeProperty("profile."+name,value);
+    }
+
+    changeImage() {
+        Store.changeProperty("activeScreen",Screens.IMAGE_PICKER);
     }
 
     submit() {
@@ -63,13 +71,6 @@ export default class ProfileContainer {
         Store.changeProperty("activeScreen",Screens.LOADING);
         async.series([
             (callback) => {
-                if (user.email !== state.email) {
-                    Backend.auth.updateEmail(state.email,callback);
-                } else {
-                    callback();
-                }
-            },
-            (callback) => {
                 if (state.password.length) {
                     Backend.auth.updatePassword(state.password,callback);
                 } else {
@@ -77,6 +78,18 @@ export default class ProfileContainer {
                 }
             },
             (callback) => {
+                if (!state.selectedImage) { callback(); return;}
+                const imageFile = user.email+"-"+Date.now()+".jpg";
+                let previousImageFile = decodeURIComponent(state.image).split("/").pop().split("?").shift();
+                Backend.storage.deleteFile(previousImageFile, () => {
+                    Store.changeProperty("profile.image",Backend.storage.getFileUrl(imageFile));
+                    Backend.storage.putFile(imageFile,state.selectedImage,() => {
+                        callback();
+                    })
+                })
+            },
+            (callback) => {
+                const state = Store.getState().profile;
                 if (user.displayName !== state.name || user.photoURL !== state.image) {
                     Backend.auth.updateProfile({displayName: state.name,photoURL: state.image},callback)
                 } else {
@@ -98,7 +111,6 @@ export default class ProfileContainer {
         const state = Store.getState().profile;
         const errors = {};
         if (!state.name.trim().length) errors["name"] = t("Name is required");
-        if (!state.email.trim().length) errors["email"] = t("Email is required");
         if (state.password.trim() !== state.confirmPassword.trim()) errors["password"] = t("Passwords must match");
         if (Object.getOwnPropertyNames(errors).length) return errors;
         return null;

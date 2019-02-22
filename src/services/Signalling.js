@@ -49,7 +49,6 @@ class Signalling extends Service {
                 this.triggerEvent("onSignal",[{type:message.type,data:message}]);
             }
         };
-
     }
 
     onAuthChange(isLogin) {

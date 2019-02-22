@@ -10,12 +10,18 @@ export const Screens = {
     REGISTER: 'SCREENS_REGISTER',
     PROFILE: 'SCREENS_PROFILE',
     USERS_LIST: 'SCREENS_USERS_LIST',
-    VIDEO_CHAT: 'SCREENS_VIDEO_CHAT'
+    VIDEO_CHAT: 'SCREENS_VIDEO_CHAT',
+    IMAGE_PICKER: 'IMAGE_PICKER'
 };
 
 export const ChatMode = {
     CALLING: 'CHAT_MODE_CALLING',
     TALKING: 'CHAT_MODE_TALKING'
+};
+
+export const ImagePickerMode = {
+    CAMERA: 'IMAGE_PICKER_MODE_CAMERA',
+    LIBRARY: "IMAGE_PICKER_MODE_LIBRARY"
 };
 
 // noinspection JSUnresolvedFunction
@@ -38,12 +44,12 @@ export const initialState = {
         errors: {}
     },
     profile: {
-        name: "Andrey Germanov",
-        email: "andrey@it-port.ru",
+        name: "",
         image: "",
         password: "",
         confirmPassword: "",
-        errors: {}
+        errors: {},
+        selectedImage: ""
     },
     users: {
         updatesCounter:0
@@ -51,6 +57,9 @@ export const initialState = {
     chat: {
         updatesCounter:0,
         mode: null
+    },
+    imagePicker: {
+        mode: ImagePickerMode.CAMERA
     }
 };
 

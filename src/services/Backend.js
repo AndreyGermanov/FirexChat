@@ -1,6 +1,7 @@
 import Auth from './Auth';
 import Database from './Database';
 import VideoChat from './VideoChat';
+import Storage from './Storage';
 
 class Backend {
 
@@ -19,10 +20,12 @@ class Backend {
         this.db = Database;
         this.auth = Auth;
         this.videoChat = VideoChat;
+        this.storage = Storage;
     }
 
     init() {
        Auth.init();
+       Storage.init();
        VideoChat.init();
     }
 }

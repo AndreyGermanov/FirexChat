@@ -2,6 +2,7 @@ import HeaderComponent from '../components/Header';
 import {connect} from 'react-redux';
 import Store from '../store/Store';
 import {Screens} from "../reducers/RootReducer";
+import Backend from '../services/Backend';
 
 export default class HeaderContainer {
 
@@ -39,6 +40,13 @@ export default class HeaderContainer {
     }
 
     gotoProfile() {
-        Store.changeProperty("activeScreen",Screens.PROFILE)
+        const profile = Backend.auth.getProfile();
+        Store.changeProperties({
+            "activeScreen": Screens.PROFILE,
+            "profile.selectedImage": "",
+            "profile.email": profile.id,
+            "profile.name": profile.name,
+            "profile.image": profile.image
+        })
     }
 }
