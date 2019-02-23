@@ -6,6 +6,10 @@ import {Screens} from "../reducers/RootReducer";
 
 export default class Header extends Component {
 
+    /**
+     * Method renders component on the screen
+     * @returns Rendered component
+     */
     render() {
         return (
             <View style={Styles.header}>
@@ -21,6 +25,14 @@ export default class Header extends Component {
         )
     }
 
+    /**
+     * Renders individual tab in menu
+     * @param text - Text of menu item
+     * @param style - Style of menu item container
+     * @param isActive - True if this tab is active
+     * @param onClick - Function, which acts as onClick event handler for this menu item
+     * @returns Rendered component
+     */
     renderMenuItem(text,style,isActive,onClick) {
         return (
         <TouchableOpacity style={[style,{backgroundColor:isActive ? 'white' : '#d9935f' }]} onPress={()=>onClick()}>

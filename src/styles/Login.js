@@ -1,5 +1,8 @@
 import {StyleSheet} from "react-native";
 
+/**
+ * Styles used for Login Component design
+ */
 export default  StyleSheet.create({
     scrollView: {
         height:"100%",

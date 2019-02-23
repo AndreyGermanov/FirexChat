@@ -1,4 +1,8 @@
 import Header from "./Header";
+
+/**
+ * Styles used for ImagePicker Component design
+ */
 let Styles = Header;
 Styles.buttonBar = {
     flexDirection:"row",

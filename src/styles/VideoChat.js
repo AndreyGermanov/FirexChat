@@ -1,4 +1,8 @@
 import {StyleSheet} from "react-native";
+
+/**
+ * Styles used for Video Chat Component design
+ */
 export default StyleSheet.create({
     callScreen: {
         flex:1,

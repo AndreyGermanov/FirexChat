@@ -2,6 +2,9 @@ import Backend from '../services/Backend';
 import Store from '../store/Store';
 import Signalling from "../services/Signalling";
 
+/**
+ * Data collection used to manage active users, which displayed on Users List screen
+ */
 class Sessions {
 
     /**
@@ -15,15 +18,33 @@ class Sessions {
         return Sessions.instance;
     }
 
-    init() {
+    /**
+     * Class constructor
+     */
+    constructor() {
         this.list = [];
+    }
+
+    /**
+     * Initialization method
+     */
+    init() {
         Backend.auth.subscribe(this);
     }
 
+    /**
+     * Method used to send User list request to backend WebSocket server
+     * @param callback - Function runs when request sent
+     */
     loadList(callback=()=>{}) {
         Signalling.requestUsersList();
     }
 
+    /**
+     * Handler which runs when current user authentication status changes (user logs in or logs out).
+     * Used to refresh sessions list or unload sessions list
+     * @param isLogin
+     */
     onAuthChange(isLogin) {
         if (isLogin) {
             Signalling.subscribe(this);
@@ -34,6 +55,10 @@ class Sessions {
         }
     }
 
+    /**
+     * Method runs when response from backend server received
+     * @param event - Response from server object
+     */
     onSignal(event) {
         let state = Store.getState();
         switch (event.type) {
@@ -48,6 +73,10 @@ class Sessions {
         }
     }
 
+    /**
+     * Method used to update user information from provided data
+     * @param data - Object with user data
+     */
     updateUser(data) {
         let index = this.list.findIndex((item) => item.id === data.id);
         if (index === -1) index = this.list.length;

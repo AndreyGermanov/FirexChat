@@ -1,4 +1,8 @@
 import {StyleSheet} from "react-native";
+
+/**
+ * Styles used for User Profile Component design
+ */
 export default StyleSheet.create({
     container: {
         flexDirection:"column",

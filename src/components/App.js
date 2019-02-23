@@ -11,8 +11,15 @@ import {Screens} from "../reducers/RootReducer";
 import {View} from 'react-native';
 import Styles from '../styles/App';
 
+/**
+ * Main application component, which used to switch screens based on current application state
+ */
 export default class App extends Component {
 
+    /**
+     * Method renders component on the screen
+     * @returns Rendered component
+     */
     render() {
         const Login = LoginContainer.getComponent();
         const Register = RegisterContainer.getComponent();
@@ -34,6 +41,11 @@ export default class App extends Component {
         return screen;
     }
 
+    /**
+     * Method used to render specified component inside container with header
+     * @param component - Input component to inject under the header
+     * @returns Rendered component
+     */
     wrapScreen(component) {
         const Header = HeaderContainer.getComponent();
         return (
@@ -44,6 +56,9 @@ export default class App extends Component {
         )
     }
 
+    /**
+     * Method runs after component appears on the screen. It begins application start sequence
+     */
     componentDidMount() {
         this.props.start();
     }

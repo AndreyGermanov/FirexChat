@@ -2,14 +2,26 @@ import React, {Component} from 'react';
 import {View,Text,FlatList,TouchableOpacity,Image} from 'react-native';
 import Styles from '../styles/UsersList'
 
+/**
+ * List of users screen component
+ */
 export default class UsersList extends Component {
 
+    /**
+     * Method renders component on the screen
+     * @returns Rendered component
+     */
     render() {
         return (
             <FlatList data={this.props.users} contentContainerStyle={{backgroundColor:'white'}} renderItem={({item}) => this.renderItem(item)}/>
         )
     }
 
+    /**
+     * Method used to render Users list item
+     * @param item User item data used to render item
+     * @returns Rendered component
+     */
     renderItem(item) {
         // noinspection JSUnresolvedFunction
         const image = item.image ? {uri:item.image} :  require("../img/default_profile.png");
@@ -29,6 +41,11 @@ export default class UsersList extends Component {
         )
     }
 
+    /**
+     * Method used to render action buttons for list item: e.g : "Call", "Answer" or "Reject call"
+     * @param item User item data used to render item
+     * @returns Rendered component
+     */
     renderItemButtons(item) {
         let opacity = {opacity:1};
         if (!this.props.isOnline) opacity = {opacity:0.2};

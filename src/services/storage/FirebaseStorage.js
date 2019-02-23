@@ -17,14 +17,26 @@ class FirebaseStorage {
         return FirebaseStorage.instance;
     }
 
+    /**
+     * Class constructor
+     */
     constructor() {
         this.storage = null;
     }
 
+    /**
+     * Initialization method
+     */
     init() {
         this.storage = firebase.storage();
     }
 
+    /**
+     * Method used to upload specified file data to storage
+     * @param path - Path to file in storage
+     * @param data - Data to store to this file (Uri to local file)
+     * @param callback - Function runs when operation finished
+     */
     putFile(path,data,callback=()=>{}) {
         firebase.storage().ref(Config.rootDir+"/"+path).putFile(data)
         .then(() => {
@@ -35,10 +47,20 @@ class FirebaseStorage {
         })
     }
 
+    /**
+     * Method used to delete specified file from storage
+     * @param path - Path to file in storage
+     * @param callback - Function runs when operation finished
+     */
     deleteFile(path,callback=()=>{}) {
         firebase.storage().ref(Config.rootDir+"/"+path).delete().then(()=> callback()).catch(()=> callback());
     }
 
+    /**
+     * Method return absolute URL of specified file in storage
+     * @param path - Name of file
+     * @returns Full URL to specified file
+     */
     getFileUrl(path) {
         return Config.urlPrefix+"/"+encodeURIComponent(Config.rootDir+"/"+path)+"?alt=media"
     }

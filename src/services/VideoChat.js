@@ -4,8 +4,12 @@ import Backend from './Backend';
 import Signalling from './Signalling'
 import Store from "../store/Store";
 import {Screens,ChatMode} from "../reducers/RootReducer";
-import Sound from 'react-native-sound';
+import Audio from '../services/Audio';
 
+/**
+ * VideoChat WebRTC service. Used to communication with TURN and WebSocket server to make calls and
+ * receive answers
+ */
 class VideoChat {
 
     /**
@@ -19,6 +23,9 @@ class VideoChat {
         return VideoChat.instance;
     }
 
+    /**
+     * Class constructor
+     */
     constructor() {
         this.sessionOpened = false;
         this.peerUser = "";
@@ -26,16 +33,20 @@ class VideoChat {
         this.incomingCalls = {};
         this.localStream = null;
         this.remoteStream = null;
-        this.ringInterval = null;
-        this.callInterval = null;
-        this.sound = null;
     }
 
+    /**
+     * Initialization method
+     */
     init() {
         Backend.auth.subscribe(this);
         Signalling.init();
     }
 
+    /**
+     * Method initiates call request to specified user
+     * @param userId - ID of user to call to
+     */
     call(userId) {
         if (!this.isOnline()) return;
         this.peerUser = userId;
@@ -43,15 +54,13 @@ class VideoChat {
         this.iceCandidates = [];
         Store.changeProperties({"activeScreen":Screens.VIDEO_CHAT, "chat.mode": ChatMode.CALLING});
         Signalling.sendCallRequest(userId);
-        if (this.callInterval === null) {
-            this.callInterval = setInterval(() => {
-                this.sound = new Sound('call.mp3', Sound.MAIN_BUNDLE, () => {
-                    if (this.sound) this.sound.play((success) => {});
-                });
-            },5000)
-        }
+        Audio.playLoop('call.mp3',5000);
     }
 
+    /**
+     * Method sends Accept call message to specified user
+     * @param userId - ID of user to respond to
+     */
     acceptCall(userId) {
         if (!this.isOnline()) return;
         this.peerUser = userId;
@@ -59,22 +68,28 @@ class VideoChat {
         this.iceCandidates = [];
         Store.changeProperties({"activeScreen":Screens.VIDEO_CHAT, "chat.mode": ChatMode.TALKING});
         Signalling.sendCallResponse(userId,true);
-        clearInterval(this.ringInterval);
-        if (this.sound) this.sound.stop();
-        this.ringInterval = null;
+        Audio.stopLoop('ring.mp3');
     }
 
+
+    /**
+     * Method sends Reject call message to specified user
+     * @param userId - ID of user to respond to
+     */
     rejectCall(userId) {
         if (!this.isOnline()) return;
         delete this.incomingCalls[userId];
         let state = Store.getState();
         Store.changeProperties({"activeScreen":Screens.USERS_LIST, "users.updatesCounter": state.users.updatesCounter+1});
         Signalling.sendCallResponse(userId,false);
-        clearInterval(this.ringInterval);
-        if (this.sound) this.sound.stop();
-        this.ringInterval = null;
+        Audio.stopLoop('ring.mp3');
     }
 
+    /**
+     * Method used to create and send WebRTC offer to specified user
+     * @param userId - ID of destination user
+     * @param callback - Function runs when operation finished
+     */
     sendOffer(userId,callback=()=>{}) {
         this.setupConnection(() => {
             this.connection.createOffer()
@@ -88,6 +103,12 @@ class VideoChat {
         });
     }
 
+    /**
+     * Method used to create and send WebRTC answer to specified user
+     * @param userId - ID of destination user
+     * @param offerSdp - Description of offer, received from destination user
+     * @param callback - Function runs when operation finished
+     */
     sendAnswer(userId,offerSdp,callback=()=>{}) {
         this.setupConnection(()=> {
             this.connection.setRemoteDescription(new RTCSessionDescription(offerSdp))
@@ -102,6 +123,10 @@ class VideoChat {
         })
     }
 
+    /**
+     * Method used to create WebRTC connection
+     * @param callback - Function runs when operation finished
+     */
     setupConnection(callback=()=>{}) {
         const state = Store.getState();
         this.connection = new RTCPeerConnection(Config.connection);
@@ -121,6 +146,10 @@ class VideoChat {
         })
     }
 
+    /**
+     * Method used to construct local media stream from user equipment: Camera and Microphone
+     * @param callback - Function runs when operation finished
+     */
     openLocalCamera(callback=()=>{}) {
         if (this.localStream != null) { this.addLocalStream(this.localStream,callback); return; }
         mediaDevices.getUserMedia({
@@ -134,6 +163,11 @@ class VideoChat {
         });
     }
 
+    /**
+     * Method used to add local media stream to WebRTC connection
+     * @param stream - Stream object to add
+     * @param callback - Function runs when operation finished
+     */
     addLocalStream(stream,callback) {
         let state = Store.getState();
         this.localStream = stream;
@@ -142,6 +176,10 @@ class VideoChat {
         callback();
     }
 
+    /**
+     * Subscription method which runs when user authentication status changes
+     * @param isLogin - True if user signs in and False if user sings out
+     */
     onAuthChange(isLogin) {
         if (isLogin) {
             Signalling.subscribe(this);
@@ -151,6 +189,10 @@ class VideoChat {
         }
     }
 
+    /**
+     * Subscription method, which runs when new event from Signalling (websocket) server arrived
+     * @param event - Received event message
+     */
     onSignal(event) {
         switch (event.type) {
             case "call":              this.onCall(event.data); break;
@@ -162,19 +204,21 @@ class VideoChat {
         }
     }
 
+    /**
+     * Method used to respond on Call messages
+     * @param data - Message data
+     */
     onCall(data) {
         const state = Store.getState();
         this.incomingCalls[data.from] = data;
         Store.changeProperty("users.updatesCounter",state.users.updatesCounter+1);
-        if (this.ringInterval === null) {
-            this.ringInterval = setInterval(() => {
-                this.sound = new Sound('ring.mp3', Sound.MAIN_BUNDLE, () => {
-                    if (this.sound) this.sound.play((success) => {});
-                });
-            }, 5000);
-        }
+        Audio.playLoop('ring.mp3',5000);
     }
 
+    /**
+     * Method used to respond on Call response messages
+     * @param data - Message data
+     */
     onCallResponse(data) {
         const state = Store.getState();
         if (data.answer === "reject") {
@@ -187,19 +231,23 @@ class VideoChat {
         } else {
             this.sendOffer(data.from)
         }
-        clearInterval(this.ringInterval);
-        clearInterval(this.callInterval);
-        this.ringInterval = null;
-        this.callInterval = null;
-        if (this.sound) this.sound.stop();
+        Audio.stopLoop();
     }
 
+    /**
+     * Method used to respond to WebRTC offer messages
+     * @param data - Message data
+     */
     onVideoOffer(data) {
         if (this.peerUser !== data.from || !this.sessionOpened) return;
         if (data.answer_type === 'reject') { this.hangup(); return;}
         this.sendAnswer(this.peerUser,data.sdp);
     }
 
+    /**
+     * Method used to respond to WebRTC answer messages
+     * @param data - Message data
+     */
     onVideoAnswer(data) {
         if (data.from !== this.peerUser || !this.sessionOpened) return;
         this.connection.setRemoteDescription(new RTCSessionDescription(data.sdp))
@@ -209,11 +257,18 @@ class VideoChat {
         })
     }
 
+    /**
+     * Method used to respond to ICE candidate messages
+     * @param data - Message data
+     */
     onNewIceCandidate(data) {
         if (data.from !== this.peerUser || !this.sessionOpened) return;
         this.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
     }
 
+    /**
+     * Method used to respond on WebSocket connection status change event
+     */
     onConnectionStatus() {
         const state = Store.getState();
         if (!this.isOnline()) {
@@ -223,20 +278,14 @@ class VideoChat {
         }
     }
 
+    /**
+     * Method used to break current WebRTC connection and return user to Users List screen
+     */
     hangup() {
         const state = Store.getState();
         this.eraseConnection();
-        clearInterval(this.callInterval);
-        clearInterval(this.ringInterval);
-        this.callInterval = null;
-        this.ringInterval = null;
-        if (this.sound) this.sound.stop();
-        if (state.activeScreen === Screens.VIDEO_CHAT) {
-            this.sound = new Sound('hangup.mp3', Sound.MAIN_BUNDLE, () => {
-                if (this.sound) this.sound.play((success) => {
-                });
-            });
-        }
+        Audio.stopLoop();
+        if (state.activeScreen === Screens.VIDEO_CHAT) Audio.play('hangup.mp3');
         Store.changeProperties({
             "activeScreen": Screens.USERS_LIST,
             "chat.mode": null,
@@ -244,6 +293,9 @@ class VideoChat {
         })
     }
 
+    /**
+     * Method used to remove all data, related to current connection and notify connection peer about this
+     */
     eraseConnection() {
         const state = Store.getState();
         if (this.connection) this.connection.close();
@@ -258,6 +310,9 @@ class VideoChat {
         this.eraseSession();
     }
 
+    /**
+     * Method used to remove all Session information about current connection
+     */
     eraseSession() {
         delete this.incomingCalls[this.peerUser];
         this.sessionOpened = false;
@@ -265,6 +320,10 @@ class VideoChat {
         this.iceCandidates = [];
     }
 
+    /**
+     * Returns current WebSocket server connection status
+     * @returns True if connected and false otherwise
+     */
     isOnline() { return Signalling.isOnline()}
 }
 

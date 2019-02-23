@@ -3,6 +3,10 @@ import Database from './Database';
 import VideoChat from './VideoChat';
 import Storage from './Storage';
 
+/**
+ * Root service, which provides access to controllers to all backend services:
+ * Database, Authentication, VideoChat, Storage
+ */
 class Backend {
 
     /**
@@ -16,6 +20,9 @@ class Backend {
         return Backend.instance;
     }
 
+    /**
+     * Class constructor
+     */
     constructor() {
         this.db = Database;
         this.auth = Auth;
@@ -23,6 +30,9 @@ class Backend {
         this.storage = Storage;
     }
 
+    /**
+     * Initialization method
+     */
     init() {
        Auth.init();
        Storage.init();

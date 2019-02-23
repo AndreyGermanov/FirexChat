@@ -6,8 +6,15 @@ import Octicons from 'react-native-vector-icons/Octicons';
 import Styles from '../styles/Profile'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 
+/**
+ * Component shows User Profile screen
+ */
 export default class Profile extends Component {
 
+    /**
+     * Method renders component on the screen
+     * @returns Rendered component
+     */
     render() {
         return (
             <KeyboardAwareScrollView contentContainerStyle={Styles.container}>

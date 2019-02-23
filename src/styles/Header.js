@@ -1,5 +1,8 @@
 import {StyleSheet} from "react-native";
 
+/**
+ * Styles used for Header Component design
+ */
 export default StyleSheet.create({
     header: {
         flexDirection:"row",

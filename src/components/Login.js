@@ -4,8 +4,15 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import t from '../utils/translate'
 import Styles from '../styles/Login';
 
+/**
+ * Component shows Login Screen
+ */
 export default class Login extends Component {
 
+    /**
+     * Method renders component on the screen
+     * @returns Rendered component
+     */
     render() {
         // noinspection JSUnresolvedFunction
         return (
@@ -20,6 +27,10 @@ export default class Login extends Component {
         )
     }
 
+    /**
+     * Method renders User login form
+     * @returns Rendered component
+     */
     renderForm() {
         return [
             this.props.errors.general ?

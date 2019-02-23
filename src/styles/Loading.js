@@ -1,4 +1,7 @@
 import {StyleSheet} from 'react-native';
+/**
+ * Styles used for Loading Component design
+ */
 export default StyleSheet.create({
     screen: {
         width:"100%",

@@ -1,3 +1,7 @@
+/**
+ * Configuration used for WebRTC video and Audio connections
+ * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/RTCPeerConnection#RTCConfiguration_dictionary
+ */
 export default {
     connection: {
         iceServers: [{

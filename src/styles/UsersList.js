@@ -1,4 +1,8 @@
 import {StyleSheet} from "react-native";
+
+/**
+ * Styles used for Users List Component design
+ */
 export default StyleSheet.create({
     container: {backgroundColor:'white'},
     itemRowContainer: {

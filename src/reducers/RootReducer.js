@@ -3,7 +3,9 @@ import Store from '../store/Store';
 import _ from 'lodash';
 import React from 'react';
 
-
+/**
+ * Enum for application screens
+ */
 export const Screens = {
     LOADING: 'SCREENS_LOADING',
     LOGIN: 'SCREENS_LOGIN',
@@ -14,11 +16,17 @@ export const Screens = {
     IMAGE_PICKER: 'IMAGE_PICKER'
 };
 
+/**
+ * Enum for VideoChat screen modes
+ */
 export const ChatMode = {
     CALLING: 'CHAT_MODE_CALLING',
     TALKING: 'CHAT_MODE_TALKING'
 };
 
+/**
+ * Enum for ImagePicker screen modes
+ */
 export const ImagePickerMode = {
     CAMERA: 'IMAGE_PICKER_MODE_CAMERA',
     LIBRARY: "IMAGE_PICKER_MODE_LIBRARY"
@@ -87,6 +95,13 @@ export default function rootReducer(state=initialState,action) {
     return newState;
 }
 
+/**
+ * Method used to change specified property in Global appliction state
+ * @param name - name of property
+ * @param value - value of property
+ * @param newState - application state object before change
+ * @returns Application state object with applied change
+ */
 const changeProperty = function(name,value,newState) {
     let clonedValue = _.cloneDeep(value);
     if (!clonedValue || typeof(clonedValue) !== "object" || !Object.getOwnPropertyNames(clonedValue).length) {

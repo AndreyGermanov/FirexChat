@@ -1,7 +1,7 @@
 import Backend from './Backend'
 import Service from './Service';
 
-class Signalling extends Service {
+class FBSignalling extends Service {
 
     /**
      * Returns single instance of this service
@@ -76,4 +76,4 @@ class Signalling extends Service {
 
 }
 
-//export default Signalling.getInstance();
+export default FBSignalling.getInstance();

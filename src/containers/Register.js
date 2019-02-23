@@ -5,10 +5,13 @@ import t from "../utils/translate";
 import {Screens} from "../reducers/RootReducer";
 import Backend from "../services/Backend";
 
+/**
+ * Controller for Sign Up screen
+ */
 export default class RegisterContainer {
 
     /**
-     * Binds properties and methods of this controller main screen view and returns component
+     * Binds properties and methods of this controller to related screen view and returns component
      * with properties and methods
      * @returns Component to display
      */
@@ -23,6 +26,11 @@ export default class RegisterContainer {
         return RegisterContainer.component;
     }
 
+    /**
+     * Defines which properties of global application state will be visible inside related view
+     * @param state Link to application state
+     * @returns Array of properties
+     */
     mapStateToProps(state) {
         return {
             name: state.register.name,
@@ -32,6 +40,10 @@ export default class RegisterContainer {
         }
     }
 
+    /**
+     * Defines which controllers methods will be available to execute from related screen
+     * @returns: Array of methods
+     */
     mapDispatchToProps() {
         return {
             submit: () => this.submit(),
@@ -40,28 +52,31 @@ export default class RegisterContainer {
         }
     }
 
+    /**
+     * "Register" button onClick handler. Validates provided data and tries to login with it.
+     * Shows error messages if there are errors
+     */
     submit() {
         const errors = this.validate();
         if (errors) {
             Store.changeProperty("register.errors",errors);
             return;
-        } else {
-            Store.changeProperty("register.errors",{});
-        }
+        } else Store.changeProperty("register.errors",{});
         Store.changeProperty("activeScreen",Screens.LOADING);
         const state = Store.getState().register;
         Backend.auth.register(state.name,state.password, (error) => {
-
-            if (error) {
-                Store.changeProperty("register.errors", {"general":error});
-                Store.changeProperty("activeScreen",Screens.REGISTER);
-            } else {
+            if (error) Store.changeProperties({"register.errors":{"general":error},"activeScreen":Screens.REGISTER});
+            else {
                 Backend.auth.checkLogin();
                 Store.changeProperties({"register.name":"","register.password":"","register.errors":{}});
             }
         })
     }
 
+    /**
+     * Method validates form data
+     * @returns Error messages object or null if no errors
+     */
     validate() {
         const state = Store.getState().register;
         const errors = {};
@@ -72,19 +87,23 @@ export default class RegisterContainer {
         return null;
     }
 
+    /**
+     * onChange handler for text input fields in the form. Used to forward entered text in fields to application
+     * state
+     * @param name - Name of input field
+     * @param value - current value in field
+     */
     changeField(name,value) {
         Store.changeProperty("register."+name,value);
     }
 
+    /**
+     * Method used as onClick handler for "Already registered ?" link. Moves to "Login" screen.
+     */
     goLogin() {
         Store.changeProperties({
-            "login.name": "",
-            "login.password": "",
-            "login.errors": {},
-            "register.name": "",
-            "register.password": "",
-            "register.confirmPassword": "",
-            "register.errors": {},
+            "login.name": "", "login.password": "", "login.errors": {},
+            "register.name": "", "register.password": "", "register.confirmPassword": "", "register.errors": {},
             "activeScreen": Screens.LOGIN
         })
     }

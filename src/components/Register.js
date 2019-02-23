@@ -4,8 +4,15 @@ import {View,Text,TextInput,TouchableOpacity} from 'react-native';
 import t from "../utils/translate";
 import Styles from '../styles/Login';
 
+/**
+ * Component shows user Sign Up from
+ */
 export default class Register extends Login {
 
+    /**
+     * Method renders User register form
+     * @returns Rendered component
+     */
     renderForm() {
         return [
             this.props.errors.general ?

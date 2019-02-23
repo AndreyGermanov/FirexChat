@@ -7,7 +7,7 @@ import Sessions from '../models/Sessions'
 export default class VideoChatContainer {
 
     /**
-     * Binds properties and methods of this controller main screen view and returns component
+     * Binds properties and methods of this controller to related screen view and returns component
      * with properties and methods
      * @returns Component to display
      */
@@ -22,6 +22,11 @@ export default class VideoChatContainer {
         return VideoChatContainer.component;
     }
 
+    /**
+     * Defines which properties of global application state will be visible inside related view
+     * @param state Link to application state
+     * @returns Array of properties
+     */
     mapStateToProps(state) {
         state = Store.getState();
         const users = Sessions.list.filter((item) => item.id === Backend.videoChat.peerUser);
@@ -40,12 +45,19 @@ export default class VideoChatContainer {
         }
     }
 
+    /**
+     * Defines which controllers methods will be available to execute from related screen
+     * @returns: Array of methods
+     */
     mapDispatchToProps() {
         return {
             hangup: () => this.hangup()
         }
     }
 
+    /**
+     * Hangup button onClick handler. Stops current conversation and moves back to Users list screen
+     */
     hangup() {
         Backend.videoChat.hangup();
     }
