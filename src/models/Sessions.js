@@ -37,7 +37,6 @@ class Sessions {
      * @param callback - Function runs when request sent
      */
     loadList(callback=()=>{}) {
-        console.log("LOADING USERS LIST");
         Signalling.requestUsersList();
     }
 
@@ -61,7 +60,6 @@ class Sessions {
      * @param event - Response from server object
      */
     onSignal(event) {
-        console.log(event);
         let state = Store.getState();
         switch (event.type) {
             case "update_user_profile":
@@ -80,11 +78,9 @@ class Sessions {
      * @param data - Object with user data
      */
     updateUser(data) {
-        console.log("UPDATING USER");
         let index = this.list.findIndex((item) => item.id === data.id);
         if (index === -1) index = this.list.length;
         this.list[index] = { id: data.id, name: data.name, image: data.image };
-        console.log(this.list);
     }
 }
 

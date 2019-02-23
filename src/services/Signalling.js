@@ -46,10 +46,8 @@ class Signalling extends Service {
      * Method used to connect to WebSocket server and set message listeners
      */
     connect() {
-        console.log("CONNECTING");
         this.connection = new WebSocket(WebSocketConfig.url);
         this.connection.onopen = () => {
-            console.log("CONNECTED");
             if (this.getMessagesInterval === null) {
                 this.getMessagesInterval = setInterval(() => {
                     this.sendMessage({type:"get_messages",from:this.user})
@@ -75,7 +73,6 @@ class Signalling extends Service {
             if (!this.tryConnectInterval) {
                 this.tryConnectInterval = setInterval(() => {
                     if (!this.connection || this.connection.readyState !== this.connection.OPEN) {
-                        console.log("TRYING TO CONNECT");
                         this.connect();
                     }
                     if (this.connection.readyState === 1) {
