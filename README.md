@@ -1,1 +1,1 @@
-FirexChat - One to one Video chat for Android based on WebRTC and WebSocket.
+FirexChat - One to one Video chat for Android and iOS based on WebRTC and WebSocket.

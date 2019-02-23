@@ -85,6 +85,7 @@ export default class ProfileContainer {
         if (errors) {
             Store.changeProperty("profile.errors",errors); return;
         } else Store.changeProperties({"profile.errors":{},"activeScreen":Screens.LOADING});
+        const state = Store.getState().profile;
         async.series([
             (callback) => {
                 if (state.password.length) Backend.auth.updatePassword(state.password,callback);

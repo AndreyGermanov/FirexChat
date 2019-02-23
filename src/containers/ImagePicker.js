@@ -61,6 +61,7 @@ export default class ImagePickerContainer {
      * @param image - Selected image object
      */
     selectImage(image) {
+        if (!image) return;
         Store.changeProperty("profile.selectedImage",image.uri);
     }
 
